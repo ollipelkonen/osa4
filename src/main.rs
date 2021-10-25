@@ -46,7 +46,7 @@ fn main() {
   println!("satan!");
 //  let plague = collada::document::ColladaDocument::from_path( Path::new("./plague.dae"));
 
-  let plague = match collada::document::ColladaDocument::from_path( Path::new("./plague.dae")) {
+  let plague = match collada::document::ColladaDocument::from_path( Path::new("./data/plague.dae")) {
     Ok(p) => {
       p
     }
