@@ -66,18 +66,39 @@ fn main() {
   };
 
   for obu in s.objects.iter() {
-    println!("___ obj {:?} {}", obu.id, obu.vertices.len() );
+    println!("___ obj {:?} {}  tex: {}", obu.id, obu.vertices.len(), obu.tex_vertices.len() );
 
+    //println!("    mesh {:?} {}", geo.vertices.len(), geo.vertices.len() );
     for geo in obu.geometry.iter() {
       //println!("    mesh {:?} {}", geo.mesh[0].vertices.len(), geo.mesh.len() );
       for elem in geo.mesh.iter() {
         let y = match elem {
           PrimitiveElement::Triangles(v) => {
             &v.vertices
+          },
+          _ => {
+            println!("no");
+            std::process::exit(1)
           }
         };
-  
+
+        let minx = y.iter().fold(0, |min_val, &val| min_val.min(val.0).min(val.1).min(val.2));
+        let maxx = y.iter().fold(0, |min_val, &val| min_val.min(val.0).max(val.1).max(val.2));
+        println!("   min. {:?}  max. {:?}", minx, maxx );
       }
+
+      /*for elem in geo.mesh.iter() {
+        let y = match elem {
+          PrimitiveElement::Triangles(v) => {
+            &v.vertices
+          },
+          _ => {
+            println!("no");
+            std::process::exit(1)
+          }
+        };
+        println!("triangles {:?}", y);
+      }*/
       //print_type_of(&geo.mesh[0]);
     }
 
