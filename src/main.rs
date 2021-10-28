@@ -38,9 +38,20 @@ impl From<&collada::Vertex> for Vector3 {
 */
 
 
-fn print_type_of<T>(_: &T) {
-  println!("{}", std::any::type_name::<T>())
+fn print_type_of<T>(_: &T, text: &str) {
+  println!("{:?} {}", text, std::any::type_name::<T>())
 }
+/*fn print_type_of<T>(_: &T, text: Option<String>) {
+  println!("{:?} {}", text, std::any::type_name::<T>())
+}*/
+/*fn print_type_of<T>(t: &T) {
+  print_type_of(t, None);
+  //println!("{}", std::any::type_name::<T>())
+}*/
+
+
+
+//impl create_object for
 
 fn main() {
   println!("satan!");
@@ -57,15 +68,35 @@ fn main() {
 
   let s = match plague.get_obj_set() {
     Some(p) => {
-      println!("obj set found");
-      p
+      p.objects.into_iter().map( |obu|
+        obu.geometry.into_iter().map( |geo|
+          geo.mesh.into_iter().map( |elem|
+            match elem {
+              PrimitiveElement::Triangles(v) => {
+                v.vertices
+              },
+              _ => {
+                println!("no");
+                std::process::exit(1)
+              }
+            }
+          )
+        )
+      )
     }
     None => {
       std::process::exit(1)
     }
   };
 
-  for obu in s.objects.iter() {
+
+  print_type_of(&s, "obu__ ");
+  //println!("__ dataa: {:?}", s.collect());
+//  for obu in s.objects.iter() {
+
+//      print_type_of(&obbu, "__ blaaa ");
+
+/*  for obu in s.objects.iter() {
     println!("___ obj {:?} {}  tex: {}", obu.id, obu.vertices.len(), obu.tex_vertices.len() );
 
     //println!("    mesh {:?} {}", geo.vertices.len(), geo.vertices.len() );
@@ -102,7 +133,7 @@ fn main() {
       //print_type_of(&geo.mesh[0]);
     }
 
-  }
+  }*/
 
   println!("{:?}", plague.get_images());
   println!("grr");
@@ -115,7 +146,7 @@ fn main() {
   let screen_height = 600;
 
   let opengl = OpenGL::V3_2;
-  let mut window: PistonWindow = WindowSettings::new("kauhanen", [screen_width,screen_height])
+  let mut window: PistonWindow = WindowSettings::new("f:", [screen_width,screen_height])
       .exit_on_esc(true)
       .graphics_api(opengl)
       .fullscreen(false)
@@ -126,7 +157,6 @@ fn main() {
     let mut factory = window.factory.clone();
 
     while let Some(e) = window.next() {
-      //first_person.event(&e);
 
       window.draw_3d(&e, |window| {
         let args = e.render_args().unwrap();
