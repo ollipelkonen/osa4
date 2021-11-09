@@ -112,8 +112,30 @@ pub fn from_gltf(
 
   let mode = g_primitive.mode().as_gl_enum();
 
-  let g_material = g_primitive.material();
+  let g_material: gltf::Material = g_primitive.material();
 
+  //normal_texture(), occlusion_texture()
+  /*println!("__ json: {:?}", g_primitive.material().extras());
+  let occl = match g_primitive.material().occlusion_texture().unwrap().texture().source().source() {
+    gltf::image::Source::View{view, mime_type} => mime_type,
+    gltf::image::Source::Uri{uri, mime_type} => uri
+  };
+  println!("___ material {:?}  : normal? {:?}   occlusion?   {:?}   {:?} ",
+    g_primitive.material().index().unwrap(), g_primitive.material().normal_texture().unwrap().texture().extras(), occl, g_primitive.material().name().unwrap()
+  );*/
+
+  //TODO: is this always correct? wtf?
+  //let im = imp.images[];
+
+  // base color texture
+  let oo = match g_primitive.material().pbr_metallic_roughness().base_color_texture().unwrap().texture().source().source() {
+    gltf::image::Source::Uri{uri, mime_type: _} => Some(uri),
+    _ => None
+  };
+
+  println!("___ base: {:?}", oo);
+
+//  gltf::texture::Info i
   let mut material = None;
   Primitive{ vertices, indices, mode, material }
 }
@@ -242,6 +264,11 @@ fn main() {
   //println!("___ doc : {:?}  meshes: {:?}", imp.doc, imp.doc.meshes());
   println!("___ imp.  doc: --  buffers: {:?} images: {:?} ", imp.buffers.len(), imp.images.len());
 
+  for m in imp.doc.materials() {
+    println!("____ mat {:?} ", m);
+  };
+
+  println!("___ material count {}", imp.doc.materials().len());
 
   let vals: Vec<Primitive> = imp.doc.nodes()
     .filter_map(|n| n.mesh() )
@@ -271,11 +298,9 @@ fn main() {
   let file = fs::File::open("data/textures/aiStandardSurface1SG_baseColor.jpg").unwrap();
   let reader = io::BufReader::new(file);
   //let image__ = image::load_from_memory_with_format(reader.buffer(), image::ImageFormat::Jpeg);
-  let image__ = image::load(reader, image::ImageFormat::Jpeg);
-  let image_ = image__.unwrap();
-  let image = image_.to_rgba8();
-//    .unwrap()
-//    .to_rgba8();
+  let image = image::load(reader, image::ImageFormat::Jpeg).unwrap().to_rgba8();
+
+
   let image_dimensions = image.dimensions();
   let image = glium::texture::RawImage2d::from_raw_rgba_reversed(&image.into_raw(), image_dimensions);
   let diffuse_texture = glium::texture::SrgbTexture2d::new(&display, image).unwrap();
