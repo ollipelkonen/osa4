@@ -5,24 +5,25 @@ use std::{fs, io};
 
 
 #[allow(dead_code)]
-pub struct Obu {
-  pub materials: Vec<Material>,
-  //pub textures: Vec<gltf::texture::Texture<a§>>,
-  pub meshes: Vec<Mesh>
+pub struct FObject {
+  pub meshes: Vec<FMesh>,
+  pub materials: Vec<FMaterial>,
+  pub textures: Vec<glium::texture::SrgbTexture2d>,
 }
 
-pub struct Material {
-  pub diffuse_texture: Option<u32>,
-  pub normal_texture: Option<u32>,
-  pub occlusion_texture: Option<u32>,
-  pub metallic_roughness_texture: Option<u32>  // unused
+pub struct FMesh {
+  pub vbuffer: glium::vertex::VertexBuffer<Vertex>,
+  pub ibuffer: glium::index::IndexBuffer<u32>,
+  pub material: Option<usize>
 }
 
-pub struct Mesh {
-  pub vertex_buffer: glium::vertex::VertexBuffer<f32>,
-  pub index_buffer: glium::index::IndexBuffer<u32>,
-  pub material: Material
+pub struct FMaterial {
+  pub diffuse_texture: Option<usize>,
+  pub normal_texture: Option<usize>,
+  pub occlusion_texture: Option<usize>,
+  pub metallic_roughness_texture: Option<usize>  // unused
 }
+
 
 #[derive(Copy, Clone)]
 pub struct Vertex {
@@ -62,19 +63,10 @@ pub struct ImportData {
   pub images: Vec<gltf::image::Data>,
 }
 
-pub struct Primitive {
-  pub vertices: Vec<Vertex>,
-  pub indices: Option<Vec<u32>>,
-  pub mode: u32,
-  pub material: Option<u32>
-}
-
-
 
 pub fn load_image(a: gltf::image::Source, display: &glium::Display) -> Option<glium::texture::SrgbTexture2d> {
   match a {
     gltf::image::Source::Uri{uri, mime_type} => {
-      println!("____ texture found {}   mime: {:?}", uri, mime_type);
       let file = fs::File::open("data/textures/aiStandardSurface1SG_baseColor.jpg").unwrap();
       let reader = io::BufReader::new(file);
       let image = image::load(reader, image::ImageFormat::Jpeg).unwrap().to_rgba8();
@@ -88,15 +80,7 @@ pub fn load_image(a: gltf::image::Source, display: &glium::Display) -> Option<gl
 
 
 #[allow(dead_code)]
-pub fn from_gltf(
-  g_primitive: &gltf::Primitive<'_>,
-//  primitive_index: usize,
-//  mesh_index: usize,
-//  root: &mut Root,
-  imp: &ImportData,
-//  base_path: &Path
-  display: &glium::Display
-  )-> Primitive
+pub fn from_gltf( g_primitive: &gltf::Primitive<'_>, imp: &ImportData, display: &glium::Display )-> FMesh
 {
   let buffers = &imp.buffers;
   let reader = g_primitive.reader(|buffer| Some(&buffers[buffer.index()]));
@@ -109,13 +93,10 @@ pub fn from_gltf(
       iter.collect::<Vec<_>>()
   };
 
+  //TODO: this should be created immediately in earlier step
   let mut vertices: Vec<Vertex> = positions
       .into_iter()
       .map(|position| {
-          /*Vertex {
-              position: position,
-              ..Vertex::default()
-          }*/
           Vertex::new( position, [0.0,0.0,0.0], [0.0,0.0])
       }).collect();
 
@@ -124,6 +105,7 @@ pub fn from_gltf(
       vertices[i].normal = normal;
     }
   }
+
   let mut tex_coord_set = 0;
   while let Some(tex_coords) = reader.read_tex_coords(tex_coord_set) {
       if tex_coord_set > 1 {
@@ -142,86 +124,24 @@ pub fn from_gltf(
       tex_coord_set += 1;
   }
 
-  /*let minx = vertices.iter().fold(1.0f32, |min_val, &val| min_val.min(val.tex_coords[0]).min(val.tex_coords[1]));
-  let maxx = vertices.iter().fold(0.0f32, |max_val, &val| max_val.max(val.tex_coords[0]).max(val.tex_coords[1]));
-  let minu = vertices.iter().fold(1.0f32, |min_val, &val| min_val.min(val.tex_coords[0]));
-  let maxu = vertices.iter().fold(0.0f32, |max_val, &val| max_val.max(val.tex_coords[0]));
-  let minv = vertices.iter().fold(1.0f32, |min_val, &val| min_val.min(val.tex_coords[1]));
-  let maxv = vertices.iter().fold(0.0f32, |max_val, &val| max_val.max(val.tex_coords[1]));
-  println!("____ uv moin/max {} / {}", minx,maxx);
-  println!("____ uv moin/max U {} / {}", minu,maxu);
-  println!("____ uv moin/max U {} / {}", minv,maxv);*/
-
   let indices = reader
     .read_indices()
     .map(|read_indices| {
       read_indices.into_u32().collect::<Vec<_>>()
     });
 
-  let mode = g_primitive.mode().as_gl_enum();
 
-  let g_material: gltf::Material = g_primitive.material();
+  let vbuffer = glium::vertex::VertexBuffer::new(display, &vertices).unwrap();
+  let ibuffer = glium::index::IndexBuffer::new(display, glium::index::PrimitiveType::TrianglesList, &(indices).as_ref().unwrap().as_slice()).unwrap();
+  let material = g_primitive.material().index();
 
-  println!("____ g_material? {:?}", g_primitive.material().index().unwrap());
-  //normal_texture(), occlusion_texture()
-  /*println!("__ json: {:?}", g_primitive.material().extras());
-  let occl = match g_primitive.material().occlusion_texture().unwrap().texture().source().source() {
-    gltf::image::Source::View{view, mime_type} => mime_type,
-    gltf::image::Source::Uri{uri, mime_type} => uri
-  };
-  println!("___ material {:?}  : normal? {:?}   occlusion?   {:?}   {:?} ",
-    g_primitive.material().index().unwrap(), g_primitive.material().normal_texture().unwrap().texture().extras(), occl, g_primitive.material().name().unwrap()
-  );*/
-
-  //TODO: is this always correct? wtf?
-  //let im = imp.images[];
-
-  // base color texture
-/*  let texture_diffuse = match g_primitive.material().pbr_metallic_roughness().base_color_texture() {
-    Some(d) => {
-      match d.texture().source().source() {
-        gltf::image::Source::Uri{uri, mime_type: _} => {
-          let file = fs::File::open("data/textures/aiStandardSurface1SG_baseColor.jpg").unwrap();
-          let reader = io::BufReader::new(file);
-          //let image__ = image::load_from_memory_with_format(reader.buffer(), image::ImageFormat::Jpeg);
-          let image = image::load(reader, image::ImageFormat::Jpeg).unwrap().to_rgba8();
-          let image_dimensions = image.dimensions();
-          let image = glium::texture::RawImage2d::from_raw_rgba_reversed(&image.into_raw(), image_dimensions);
-          Some(glium::texture::SrgbTexture2d::new(&display, image).unwrap())
-        },
-        _ => None
-      },
-      _ => None
-    }
-  };*/
-
-  let texture_diffuse = match g_primitive.material().pbr_metallic_roughness().base_color_texture() {
-    Some(d) => {
-      println!("   diffuse found. id: {}", d.texture().index());
-      load_image(d.texture().source().source(), display)
-    },
-    _ => None
-    };
-  let texture_occlusion = match g_primitive.material().occlusion_texture() {
-    Some(d) => load_image(d.texture().source().source(), display),
-    _ => None
-    };
-
-
-  println!("___ texture_diffuse: {:?}", texture_diffuse);
-
-//  gltf::texture::Info i
-  let mut material = None;
-  Primitive{ vertices, indices, mode, material }
+  FMesh{ vbuffer, ibuffer, material }
 }
 
 
 
 
-type Import = (gltf::Document, Vec<gltf::buffer::Data>, Vec<gltf::image::Data>);
-
-//pub fn load_object( filename: &str ) -> Result<(gltf::Document, Vec<gltf::buffer::Data>, Vec<gltf::buffer::Data>)>
-pub fn load_object( filename: &str, display: &glium::Display ) -> ImportData
+pub fn load_object( filename: &str, display: &glium::Display ) -> FObject
 {
   let (doc, buffers, images) = match gltf::import(filename) {
     Ok(tuple) => tuple,
@@ -235,11 +155,6 @@ pub fn load_object( filename: &str, display: &glium::Display ) -> ImportData
   };
 
   let imp = ImportData { doc, buffers, images };
-  println!("___ imp.  doc: --  buffers: {:?} images: {:?} ", imp.buffers.len(), imp.images.len());
-
-/*  for m in doc.materials() {
-    println!("____ mat {:?} ", m);
-  };*/
 
   let textures: Vec<glium::texture::SrgbTexture2d> = imp.doc.textures().map( |im| {
       load_image(im.source().source(), display)
@@ -247,33 +162,33 @@ pub fn load_object( filename: &str, display: &glium::Display ) -> ImportData
     .filter_map(|a| a)
     .collect();
 
-  println!("___ found some textures: {:?}", textures);
 
-  let vals: Vec<Primitive> = imp.doc.nodes()
+  let meshes: Vec<FMesh> = imp.doc.nodes()
     .filter_map(|n| n.mesh() )
     .map( |node| {
       from_gltf(&node.primitives().next().unwrap(), &imp, display)
-      })
+    })
     .collect::<Vec<_>>();
 
 
-//  let images =
-  let obj = &vals[2];
-  let vbuffer = glium::vertex::VertexBuffer::new(display, &obj.vertices).unwrap();
-  let ibuffer = glium::index::IndexBuffer::new(display, glium::index::PrimitiveType::TrianglesList, &(obj.indices).as_ref().unwrap().as_slice()).unwrap();
+  let materials = imp.doc.materials()
+    .map( |material| {
+      let diffuse_texture = match material.pbr_metallic_roughness().base_color_texture() {
+        Some(d) => Some(d.texture().index()),
+        _ => None
+        };
+      let normal_texture = match material.normal_texture() {
+        Some(d) => Some(d.texture().index()),
+        _ => None
+        };
+      let occlusion_texture = match material.occlusion_texture() {
+        Some(d) => Some(d.texture().index()),
+        _ => None
+        };
+      let metallic_roughness_texture = None;
+      FMaterial { diffuse_texture, normal_texture, occlusion_texture, metallic_roughness_texture }
+    })
+    .collect();
 
-  let file = fs::File::open("data/textures/aiStandardSurface1SG_baseColor.jpg").unwrap();
-  let reader = io::BufReader::new(file);
-  //let image__ = image::load_from_memory_with_format(reader.buffer(), image::ImageFormat::Jpeg);
-  let image = image::load(reader, image::ImageFormat::Jpeg).unwrap().to_rgba8();
-
-
-  let image_dimensions = image.dimensions();
-  let image = glium::texture::RawImage2d::from_raw_rgba_reversed(&image.into_raw(), image_dimensions);
-//  let diffuse_texture = glium::texture::SrgbTexture2d::new(&display, image).unwrap();
-
-
-
-//  (doc, buffers, images)
-  imp
+  FObject { meshes, materials, textures }
 }
