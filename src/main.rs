@@ -147,6 +147,17 @@ fn main() {
 
 
     obj.meshes.iter().for_each( |mesh| {
+      let mut uniforms = uniform! { model: model, view: view_mat, perspective: perspective,
+        u_light: light,
+      };
+/*      if let mat = mesh.material.unwrap() {
+        if let diffuse_texture = obj.materials[mat].diffuse_texture.unwrap() {
+          uniforms = uniforms.add("diffuse_texture", &obj.textures[diffuse_texture]);
+        }
+      }*/
+//      diffuse_tex: &obj.textures[obj.materials[mesh.material.unwrap()].diffuse_texture.unwrap()],
+  //    normal_tex: &obj.textures[obj.materials[mesh.material.unwrap()].normal_texture.unwrap()]
+
       target.draw(&mesh.vbuffer, &mesh.ibuffer, &shader,
         &uniform! { model: model, view: view_mat, perspective: perspective,
                   u_light: light,
