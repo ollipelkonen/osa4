@@ -75,7 +75,6 @@ pub fn get_mime(filename: &str) -> image::ImageFormat
 
 pub fn load_image(uri: &str, display: &glium::Display) -> Option<glium::texture::SrgbTexture2d> {
   let filename = format!("data/{}", uri);
-  //let file = fs::File::open( filename ).unwrap();
   let file = match fs::File::open( filename ) {
     Ok(f) => f,
     Err(e) => {
@@ -105,21 +104,13 @@ pub fn from_gltf( g_primitive: &gltf::Primitive<'_>, imp: &ImportData, display: 
 {
   let buffers = &imp.buffers;
   let reader = g_primitive.reader(|buffer| Some(&buffers[buffer.index()]));
-  let positions = {
-      let iter = reader
-          .read_positions()
-          .unwrap_or_else(||
-              panic!("primitives must have the POSITION attribute (mesh: , primitive: )")
-          );
-      iter.collect::<Vec<_>>()
-  };
-
-  //TODO: this should be created immediately in earlier step
-  let mut vertices: Vec<Vertex> = positions
-      .into_iter()
-      .map(|position| {
-          Vertex::new( position, [0.0,0.0,0.0], [0.0,0.0])
-      }).collect();
+  let mut vertices: Vec<Vertex> = reader
+        .read_positions()
+        .unwrap_or_else(||
+          panic!("primitives must have the POSITION attribute (mesh: , primitive: )")
+        ).map(|position| {
+            Vertex::new( position, [0.0,0.0,0.0], [0.0,0.0])
+        }).collect();
 
   if let Some(normals) = reader.read_normals() {
     for (i, normal) in normals.enumerate() {
