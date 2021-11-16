@@ -1,6 +1,7 @@
 
 extern crate glium;
 use std::{fs, io};
+pub mod shader;
 
 
 pub struct FObject {
@@ -60,17 +61,6 @@ impl Default for Vertex {
   }
 }
 
-
-pub fn load_shader_vf( filename: &str, display: &glium::Display ) -> glium::Program
-{
-  let pv = ["data/shaders/", filename, "-vert.glsl"].concat();
-  let vs = fs::read_to_string(pv)
-        .expect("Something went wrong reading the vert shader");
-  let pf = ["data/shaders/", filename, "-frag.glsl"].concat();
-  let fs = fs::read_to_string(pf)
-        .expect("Something went wrong reading the vert shader");
-  glium::Program::from_source(display, &vs, &fs, None).unwrap()
-}
 
 
 pub fn get_mime(filename: &str) -> image::ImageFormat
