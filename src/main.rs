@@ -5,8 +5,6 @@ extern crate nalgebra as nalgebra;
 pub mod f;
 pub mod sdf;
 
-use std::{fs, io};
-use std::error::Error as StdError;
 extern crate serde_json;
 
 use std::ffi::OsStr;
