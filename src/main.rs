@@ -84,7 +84,7 @@ fn main() {
   let cb = glutin::ContextBuilder::new().with_depth_buffer(24);
   let display = glium::Display::new(wb, cb, &event_loop).unwrap();
 
-  let obj = object::load_object( "data/scene.gltf", &display );
+  let obj = object::FObject::load_gltf( "data/scene.gltf", &display );
   let shader = load_shader_vf( "test", &display);
   println!("shader_vf {}s", now.elapsed().subsec_nanos()/10000000);
 

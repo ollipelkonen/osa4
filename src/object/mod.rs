@@ -57,7 +57,7 @@ impl Default for Vertex {
 
 
 
-pub struct ImportData {
+struct ImportData {
   pub doc: gltf::Document,
   pub buffers: Vec<gltf::buffer::Data>,
   pub images: Vec<gltf::image::Data>,
@@ -100,7 +100,7 @@ fn load_image_from_source(a: gltf::image::Source, display: &glium::Display) -> O
 
 
 #[allow(dead_code)]
-pub fn from_gltf( g_primitive: &gltf::Primitive<'_>, imp: &ImportData, display: &glium::Display )-> FMesh
+fn from_gltf( g_primitive: &gltf::Primitive<'_>, imp: &ImportData, display: &glium::Display )-> FMesh
 {
   let buffers = &imp.buffers;
   let reader = g_primitive.reader(|buffer| Some(&buffers[buffer.index()]));
@@ -153,54 +153,55 @@ pub fn from_gltf( g_primitive: &gltf::Primitive<'_>, imp: &ImportData, display: 
 
 
 
-pub fn load_object( filename: &str, display: &glium::Display ) -> FObject
-{
-  let (doc, buffers, images) = match gltf::import(filename) {
-    Ok(tuple) => tuple,
-    Err(err) => {
-      println!("glTF import failed: {:?}", err);
-      if let gltf::Error::Io(_) = err {
-        println!("Hint: Are the .bin file(s) referenced by the .gltf file available?")
-      }
-      std::process::exit(1)
-    },
-  };
+impl FObject {
+  pub fn load_gltf( filename: &str, display: &glium::Display ) -> FObject {
+    let (doc, buffers, images) = match gltf::import(filename) {
+      Ok(tuple) => tuple,
+      Err(err) => {
+        println!("glTF import failed: {:?}", err);
+        if let gltf::Error::Io(_) = err {
+          println!("Hint: Are the .bin file(s) referenced by the .gltf file available?")
+        }
+        std::process::exit(1)
+      },
+    };
 
-  let imp = ImportData { doc, buffers, images };
+    let imp = ImportData { doc, buffers, images };
 
-  let textures: Vec<glium::texture::SrgbTexture2d> = imp.doc.textures().map( |im| {
-      load_image_from_source(im.source().source(), display)
-    })
-    .filter_map(|a| a)
-    .collect();
-
-
-  let meshes: Vec<FMesh> = imp.doc.nodes()
-    .filter_map(|n| n.mesh() )
-    .map( |node| {
-      from_gltf(&node.primitives().next().unwrap(), &imp, display)
-    })
-    .collect::<Vec<_>>();
+    let textures: Vec<glium::texture::SrgbTexture2d> = imp.doc.textures().map( |im| {
+        load_image_from_source(im.source().source(), display)
+      })
+      .filter_map(|a| a)
+      .collect();
 
 
-  let materials = imp.doc.materials()
-    .map( |material| {
-      let diffuse_texture = match material.pbr_metallic_roughness().base_color_texture() {
-        Some(d) => Some(d.texture().index()),
-        _ => None
-        };
-      let normal_texture = match material.normal_texture() {
-        Some(d) => Some(d.texture().index()),
-        _ => None
-        };
-      let occlusion_texture = match material.occlusion_texture() {
-        Some(d) => Some(d.texture().index()),
-        _ => None
-        };
-      let metallic_roughness_texture = None;
-      FMaterial { diffuse_texture, normal_texture, occlusion_texture, metallic_roughness_texture }
-    })
-    .collect();
+    let meshes: Vec<FMesh> = imp.doc.nodes()
+      .filter_map(|n| n.mesh() )
+      .map( |node| {
+        from_gltf(&node.primitives().next().unwrap(), &imp, display)
+      })
+      .collect::<Vec<_>>();
 
-  FObject { meshes, materials, textures }
+
+    let materials = imp.doc.materials()
+      .map( |material| {
+        let diffuse_texture = match material.pbr_metallic_roughness().base_color_texture() {
+          Some(d) => Some(d.texture().index()),
+          _ => None
+          };
+        let normal_texture = match material.normal_texture() {
+          Some(d) => Some(d.texture().index()),
+          _ => None
+          };
+        let occlusion_texture = match material.occlusion_texture() {
+          Some(d) => Some(d.texture().index()),
+          _ => None
+          };
+        let metallic_roughness_texture = None;
+        FMaterial { diffuse_texture, normal_texture, occlusion_texture, metallic_roughness_texture }
+      })
+      .collect();
+
+    FObject { meshes, materials, textures }
+  }
 }
