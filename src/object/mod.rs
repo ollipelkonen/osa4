@@ -64,12 +64,22 @@ pub struct ImportData {
 }
 
 
+pub fn get_mime(filename: &str) -> image::ImageFormat
+{
+  if filename.to_lowercase().ends_with("png") {
+    image::ImageFormat::Png
+  } else {
+    image::ImageFormat::Jpeg
+  }
+}
+
 pub fn load_image(a: gltf::image::Source, display: &glium::Display) -> Option<glium::texture::SrgbTexture2d> {
   match a {
     gltf::image::Source::Uri{uri, mime_type} => {
-      let file = fs::File::open("data/textures/aiStandardSurface1SG_baseColor.jpg").unwrap();
+      let filename = format!("data/{}", uri);
+      let file = fs::File::open( filename ).unwrap();
       let reader = io::BufReader::new(file);
-      let image = image::load(reader, image::ImageFormat::Jpeg).unwrap().to_rgba8();
+      let image = image::load(reader, get_mime(uri)).unwrap().to_rgba8();
       let image_dimensions = image.dimensions();
       let image = glium::texture::RawImage2d::from_raw_rgba_reversed(&image.into_raw(), image_dimensions);
       Some(glium::texture::SrgbTexture2d::new(display, image).unwrap())
