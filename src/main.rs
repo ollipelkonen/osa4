@@ -2,7 +2,8 @@
 extern crate glium;
 extern crate nalgebra as nalgebra;
 
-pub mod object;
+pub mod f;
+pub mod sdf;
 
 use std::{fs, io};
 use std::error::Error as StdError;
@@ -42,7 +43,7 @@ fn main() {
   let cb = glutin::ContextBuilder::new().with_depth_buffer(24);
   let display = glium::Display::new(wb, cb, &event_loop).unwrap();
 
-  let obj = object::FObject::load_gltf( "data/scene.gltf", &display );
+  let obj = f::FObject::load_gltf( "data/scene.gltf", &display );
   let shader = load_shader_vf( "test", &display);
 
   println!("___ display  {:?}s -> ", now.elapsed().as_nanos() as f32/100000000.0);

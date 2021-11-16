@@ -1,10 +1,8 @@
 
 extern crate glium;
-use gltf::Gltf;
 use std::{fs, io};
 
 
-#[allow(dead_code)]
 pub struct FObject {
   pub meshes: Vec<FMesh>,
   pub materials: Vec<FMaterial>,
@@ -15,8 +13,8 @@ pub struct FMesh {
   pub vbuffer: glium::vertex::VertexBuffer<Vertex>,
   pub ibuffer: glium::index::IndexBuffer<u32>,
   pub material: Option<usize>,
-  pub vertices: Vec<Vertex>,
-  pub indices: Vec<u32>
+  pub vertices: Option<Vec<Vertex>>,
+  pub indices: Option<Vec<u32>>
 }
 
 pub struct FMaterial {
@@ -26,6 +24,7 @@ pub struct FMaterial {
   pub metallic_roughness_texture: Option<usize>  // unused
 }
 
+#[allow(dead_code)]
 fn print_type_of<T>(_: &T, text: &str) {
   println!("{:?} {:?}", text, std::any::type_name::<T>())
 }
@@ -41,7 +40,7 @@ pub struct Vertex {
 implement_vertex!(Vertex, position, normal, tex_coords);
 
 impl Vertex {
-  fn new(p: [f32; 3], n: [f32; 3], t: [f32; 2]) -> Vertex {
+  pub fn new(p: [f32; 3], n: [f32; 3], t: [f32; 2]) -> Vertex {
     Vertex {
       position: [p[0], p[1], p[2]],
       normal: [n[0], n[1], n[2]],
@@ -106,7 +105,7 @@ struct ImportData {
 
 
 #[allow(dead_code)]
-fn from_gltf( g_primitive: &gltf::Primitive<'_>, imp: &ImportData, display: &glium::Display )-> FMesh
+fn from_gltf( g_primitive: &gltf::Primitive<'_>, imp: &ImportData, display: &glium::Display ) -> FMesh
 {
   let buffers = &imp.buffers;
   let reader = g_primitive.reader(|buffer| Some(&buffers[buffer.index()]));
@@ -151,7 +150,7 @@ fn from_gltf( g_primitive: &gltf::Primitive<'_>, imp: &ImportData, display: &gli
   let vbuffer = glium::vertex::VertexBuffer::new(display, &vertices).unwrap();
   let ibuffer = glium::index::IndexBuffer::new(display, glium::index::PrimitiveType::TrianglesList, &(indices).as_ref().unwrap().as_slice()).unwrap();
   let material = g_primitive.material().index();
-  FMesh{ vbuffer, ibuffer, material, vertices, indices: indices.unwrap() }
+  FMesh{ vbuffer, ibuffer, material, vertices: Some(vertices), indices: Some(indices.unwrap()) }
 }
 
 
