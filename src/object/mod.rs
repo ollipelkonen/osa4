@@ -14,7 +14,9 @@ pub struct FObject {
 pub struct FMesh {
   pub vbuffer: glium::vertex::VertexBuffer<Vertex>,
   pub ibuffer: glium::index::IndexBuffer<u32>,
-  pub material: Option<usize>
+  pub material: Option<usize>,
+  pub vertices: Vec<Vertex>,
+  pub indices: Vec<u32>
 }
 
 pub struct FMaterial {
@@ -24,44 +26,41 @@ pub struct FMaterial {
   pub metallic_roughness_texture: Option<usize>  // unused
 }
 
+fn print_type_of<T>(_: &T, text: &str) {
+  println!("{:?} {:?}", text, std::any::type_name::<T>())
+}
+
 
 #[derive(Copy, Clone)]
 pub struct Vertex {
-    pub position: [f32; 3],
-    pub normal: [f32; 3],
-    pub tex_coords: [f32; 2],
+  pub position: [f32; 3],
+  pub normal: [f32; 3],
+  pub tex_coords: [f32; 2],
 }
 
 implement_vertex!(Vertex, position, normal, tex_coords);
 
 impl Vertex {
   fn new(p: [f32; 3], n: [f32; 3], t: [f32; 2]) -> Vertex {
-      Vertex {
-          position: [p[0], p[1], p[2]],
-          normal: [n[0], n[1], n[2]],
-          tex_coords: [t[0], t[1]],
-      }
+    Vertex {
+      position: [p[0], p[1], p[2]],
+      normal: [n[0], n[1], n[2]],
+      tex_coords: [t[0], t[1]],
+    }
   }
 }
 
 #[allow(dead_code)]
 impl Default for Vertex {
   fn default() -> Self {
-      Vertex {
-          position: [0.0, 0.0, 0.0],
-          normal: [0.0, 0.0, 1.0],
-          tex_coords: [0.0, 0.0]
-      }
+    Vertex {
+      position: [0.0, 0.0, 0.0],
+      normal: [0.0, 0.0, 1.0],
+      tex_coords: [0.0, 0.0]
+    }
   }
 }
 
-
-
-struct ImportData {
-  pub doc: gltf::Document,
-  pub buffers: Vec<gltf::buffer::Data>,
-  pub images: Vec<gltf::image::Data>,
-}
 
 
 pub fn get_mime(filename: &str) -> image::ImageFormat
@@ -96,6 +95,13 @@ fn load_image_from_source(a: gltf::image::Source, display: &glium::Display) -> O
     },
     _ => None
   }
+}
+
+
+struct ImportData {
+  pub doc: gltf::Document,
+  pub buffers: Vec<gltf::buffer::Data>,
+  pub images: Vec<gltf::image::Data>,
 }
 
 
@@ -142,14 +148,11 @@ fn from_gltf( g_primitive: &gltf::Primitive<'_>, imp: &ImportData, display: &gli
       read_indices.into_u32().collect::<Vec<_>>()
     });
 
-
   let vbuffer = glium::vertex::VertexBuffer::new(display, &vertices).unwrap();
   let ibuffer = glium::index::IndexBuffer::new(display, glium::index::PrimitiveType::TrianglesList, &(indices).as_ref().unwrap().as_slice()).unwrap();
   let material = g_primitive.material().index();
-
-  FMesh{ vbuffer, ibuffer, material }
+  FMesh{ vbuffer, ibuffer, material, vertices, indices: indices.unwrap() }
 }
-
 
 
 
