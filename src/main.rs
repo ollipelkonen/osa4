@@ -20,16 +20,6 @@ fn print_type_of<T>(_: &T, text: &str) {
 }
 
 
-fn load_shader_vf( filename: &str, display: &glium::Display ) -> glium::Program
-{
-  let pv = ["data/shaders/", filename, "-vert.glsl"].concat();
-  let vs = fs::read_to_string(pv)
-        .expect("Something went wrong reading the vert shader");
-  let pf = ["data/shaders/", filename, "-frag.glsl"].concat();
-  let fs = fs::read_to_string(pf)
-        .expect("Something went wrong reading the vert shader");
-  glium::Program::from_source(display, &vs, &fs, None).unwrap()
-}
 
 
 fn main() {
@@ -44,7 +34,7 @@ fn main() {
   let display = glium::Display::new(wb, cb, &event_loop).unwrap();
 
   let obj = f::FObject::load_gltf( "data/scene.gltf", &display );
-  let shader = load_shader_vf( "test", &display);
+  let shader = f::load_shader_vf( "test", &display);
 
   println!("___ display  {:?}s -> ", now.elapsed().as_nanos() as f32/100000000.0);
 //  std::process::exit(1);
