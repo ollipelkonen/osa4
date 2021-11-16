@@ -73,16 +73,27 @@ pub fn get_mime(filename: &str) -> image::ImageFormat
   }
 }
 
-pub fn load_image(a: gltf::image::Source, display: &glium::Display) -> Option<glium::texture::SrgbTexture2d> {
+pub fn load_image(uri: &str, display: &glium::Display) -> Option<glium::texture::SrgbTexture2d> {
+  let filename = format!("data/{}", uri);
+  //let file = fs::File::open( filename ).unwrap();
+  let file = match fs::File::open( filename ) {
+    Ok(f) => f,
+    Err(e) => {
+      println!("no file {:?}", e);
+      std::process::exit(1);
+    }
+  };
+  let reader = io::BufReader::new(file);
+  let image = image::load(reader, get_mime(uri)).unwrap().to_rgba8();
+  let image_dimensions = image.dimensions();
+  let image = glium::texture::RawImage2d::from_raw_rgba_reversed(&image.into_raw(), image_dimensions);
+  Some(glium::texture::SrgbTexture2d::new(display, image).unwrap())
+}
+
+fn load_image_from_source(a: gltf::image::Source, display: &glium::Display) -> Option<glium::texture::SrgbTexture2d> {
   match a {
-    gltf::image::Source::Uri{uri, mime_type} => {
-      let filename = format!("data/{}", uri);
-      let file = fs::File::open( filename ).unwrap();
-      let reader = io::BufReader::new(file);
-      let image = image::load(reader, get_mime(uri)).unwrap().to_rgba8();
-      let image_dimensions = image.dimensions();
-      let image = glium::texture::RawImage2d::from_raw_rgba_reversed(&image.into_raw(), image_dimensions);
-      Some(glium::texture::SrgbTexture2d::new(display, image).unwrap())
+    gltf::image::Source::Uri{uri, mime_type: _} => {
+      load_image(uri, display)
     },
     _ => None
   }
@@ -167,7 +178,7 @@ pub fn load_object( filename: &str, display: &glium::Display ) -> FObject
   let imp = ImportData { doc, buffers, images };
 
   let textures: Vec<glium::texture::SrgbTexture2d> = imp.doc.textures().map( |im| {
-      load_image(im.source().source(), display)
+      load_image_from_source(im.source().source(), display)
     })
     .filter_map(|a| a)
     .collect();
