@@ -207,4 +207,29 @@ impl FObject {
 
     FObject { meshes, materials, textures }
   }
+
+  pub fn print_tree(&self, node: &gltf::Node, depth: i32) {
+    for _ in 0..(depth - 1) {
+      print!("  ");
+    }
+    print!(" -");
+    print!(" Node {}", node.index());
+    #[cfg(feature = "names")]
+    print!(" ({})", node.name().unwrap_or("<Unnamed>"));
+    if let Some(mesh) = node.mesh() {
+      print!(" mesh {:?}", mesh.primitives());
+    }
+    if let Some(_cam) = node.camera() {
+      print!(" camera ");
+    }
+    if let Some(_skin) = node.skin() {
+      print!(" skin ");
+    }
+    println!();
+    for child in node.children() {
+      self.print_tree(&child, depth + 1);
+    }
+  }
+
 }
+
