@@ -32,7 +32,7 @@ fn main() {
   let display = glium::Display::new(wb, cb, &event_loop).unwrap();
 
   let obj = f::FObject::load_gltf( "data/scene.gltf", &display );
-  let shader = f::shader::load_shader_vf( "test", &display);
+  let shader = f::shader::create_shader_vf( &display, "test" );
 
   println!("___ display  {:?}s -> ", now.elapsed().as_nanos() as f32/100000000.0);
 //  std::process::exit(1);
