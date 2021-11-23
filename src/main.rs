@@ -125,8 +125,20 @@ fn main() {
     )).into();
 
 
+    let cx = 3.0f32 * time.sin();
+    let cy = 8.0f32 * time.cos();
+    let view_mat_2: [[f32; 4]; 4] = (nalgebra::Matrix4::<f32>::look_at_rh(
+      &nalgebra::Point3::new( 2.0, 0.0, 3.0 ),
+      &nalgebra::Point3::new( 2.0+cx, cy, 3.0 ),
+      &nalgebra::Vector3::new( 0.0, 0.0, 1.0 )
+    )).into();
 
-    target.draw(&sdf.mesh.vbuffer, &sdf.mesh.ibuffer, &sdf.shader, &uniform!{ time: time }, &draw_params_sdf ).unwrap();
+
+
+    //target.draw(&sdf.mesh.vbuffer, &sdf.mesh.ibuffer, &sdf.shader, &uniform!{ time: time }, &draw_params_sdf ).unwrap();
+    target.draw(&sdf.mesh.vbuffer, &sdf.mesh.ibuffer, &sdf.shader, &uniform! { model: model_mat, view: view_mat_2, perspective: perspective_mat,
+        u_light: light
+      }, &draw_params_sdf ).unwrap();
 
     obj.meshes.iter().for_each( |mesh| {
       // satanic
