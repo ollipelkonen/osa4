@@ -1,4 +1,4 @@
-use std::{fs, io};
+use std::{fs};
 
 
 // create vertex & fragment shaders, assuming files are  "data/shaders/" + filename + "-vert/frag.glsl"

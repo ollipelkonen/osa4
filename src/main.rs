@@ -33,6 +33,7 @@ fn main() {
   let cb = glutin::ContextBuilder::new().with_depth_buffer(24);
   let display = glium::Display::new(wb, cb, &event_loop).unwrap();
 
+  let sdf = f::Sdf::create( &display, "joku.glsl" );
   let obj = f::FObject::load_gltf( "data/scene.gltf", &display );
   let shader = f::Shader::create_shader_vf( &display, "test" );
 
@@ -40,7 +41,6 @@ fn main() {
 //  std::process::exit(1);
 
 
-  let sdf = f::Sdf::create( &display, "joku.glsl" );
 
   event_loop.run(move |event, _, control_flow| {
     //TODO: i don't want any events. fuck this.
@@ -89,6 +89,16 @@ fn main() {
       .. Default::default()
     };
 
+    let draw_params_sdf = glium::DrawParameters {
+      backface_culling: glium::draw_parameters::BackfaceCullingMode::CullingDisabled,
+      depth: glium::Depth {
+        test: glium::draw_parameters::DepthTest::Ignore,
+        write: true,
+        .. Default::default()
+      },
+      .. Default::default()
+    };
+
     let time = start.elapsed().as_nanos() as f32/1000000000.0f32;
 
     let light = [1.4, 0.4, 0.7f32];
@@ -106,16 +116,17 @@ fn main() {
       //(*nalgebra::Perspective3::new( aspect_ratio, fov, znear, zfar ).as_matrix() as nalgebra::Matrix4<f32>).into()
     };
 
-    let cx = 3.0f32 * time.sin();
-    let cy = 8.0f32 * time.cos();
+    let cx = 13.0f32 * time.sin();
+    let cy = 18.0f32 * time.cos();
     let view_mat: [[f32; 4]; 4] = (nalgebra::Matrix4::<f32>::look_at_rh(
-      &nalgebra::Point3::new( cx, cy, 3.0 ),
-      &nalgebra::Point3::new( 0.0, 0.0, 3.0 ),
+      &nalgebra::Point3::new( 2.0+cx, cy, 3.0 ),
+      &nalgebra::Point3::new( 2.0, 0.0, 3.0 ),
       &nalgebra::Vector3::new( 0.0, 0.0, 1.0 )
     )).into();
 
 
-    target.draw(&sdf.mesh.vbuffer, &sdf.mesh.ibuffer, &sdf.shader, &uniform! {}, &draw_params ).unwrap();
+
+    target.draw(&sdf.mesh.vbuffer, &sdf.mesh.ibuffer, &sdf.shader, &uniform!{ time: time }, &draw_params_sdf ).unwrap();
 
     obj.meshes.iter().for_each( |mesh| {
       // satanic
