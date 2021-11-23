@@ -2,6 +2,7 @@
 extern crate glium;
 use std::{fs, io};
 pub mod shader;
+pub mod sdf;
 
 
 pub struct FObject {

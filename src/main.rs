@@ -3,7 +3,6 @@ extern crate glium;
 extern crate nalgebra as nalgebra;
 
 pub mod f;
-pub mod sdf;
 
 extern crate serde_json;
 
@@ -21,6 +20,9 @@ fn print_type_of<T>(_: &T, text: &str) {
 
 
 fn main() {
+
+  //std::process::exit(1);
+
   #[allow(unused_imports)]
   let mut now = Instant::now();
   let start = Instant::now();
@@ -37,6 +39,9 @@ fn main() {
   println!("___ display  {:?}s -> ", now.elapsed().as_nanos() as f32/100000000.0);
 //  std::process::exit(1);
 
+
+//  let sdf_shader = f::shader::load_shader("jotai");
+//  let sdf_mesh = f::sdf::create( &display );
 
   event_loop.run(move |event, _, control_flow| {
     //TODO: i don't want any events. fuck this.
@@ -111,6 +116,7 @@ fn main() {
     )).into();
 
 
+//    target.draw(&sdf_mesh.vbuffer, &sdf_mesh.ibuffer, &sdf_shader, (), &draw_params ).unwrap();
     obj.meshes.iter().for_each( |mesh| {
       // satanic
       /*let mut uniforms = uniform! { model: model_mat, view: view_mat, perspective: perspective_mat,
