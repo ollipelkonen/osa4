@@ -1,9 +1,10 @@
 #version 330 core
 
 in vec4 position;
-out vec2 Tex_coord;
+out vec3 v_position;
+out vec2 v_tex_coord;
 
 void main() {
-  gl_Position = vec4(position.xy, 0.0, 1.0);
-  Tex_coord = position.zw;
+  v_position = vec3(position.xy, 0.0);
+  v_tex_coord = position.zw;
 }
