@@ -9,9 +9,9 @@ uniform float time;
 
 
 void main() {
-  gl_Position = vec4(
+  /*gl_Position = vec4(
     position.x* 10000.0f * sin(position.y*0.7f+time*1241.0f),
     position.y*1000.0f*cos(position.x+time*100.0f),
-    1000.0f * sin(time*1000.0f), 1.0);
-  gl_Position = vec4(position.xy,0.0, 1.0);
+    1000.0f * sin(time*1000.0f), 1.0);*/
+  gl_Position = vec4(position, 1.0f);
 }

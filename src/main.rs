@@ -41,7 +41,6 @@ fn main() {
 //  std::process::exit(1);
 
 
-
   event_loop.run(move |event, _, control_flow| {
     //TODO: i don't want any events. fuck this.
     let next_frame_time = std::time::Instant::now();
@@ -92,8 +91,8 @@ fn main() {
     let draw_params_sdf = glium::DrawParameters {
       backface_culling: glium::draw_parameters::BackfaceCullingMode::CullingDisabled,
       depth: glium::Depth {
-        test: glium::draw_parameters::DepthTest::Ignore,
-        write: true,
+        test: glium::draw_parameters::DepthTest::IfLess,
+        write: false,
         .. Default::default()
       },
       .. Default::default()
@@ -134,24 +133,12 @@ fn main() {
     )).into();
 
 
-
-    //target.draw(&sdf.mesh.vbuffer, &sdf.mesh.ibuffer, &sdf.shader, &uniform!{ time: time }, &draw_params_sdf ).unwrap();
-    target.draw(&sdf.mesh.vbuffer, &sdf.mesh.ibuffer, &sdf.shader, &uniform! { model: model_mat, view: view_mat_2, perspective: perspective_mat,
-        u_light: light
-      }, &draw_params_sdf ).unwrap();
+    target.draw(&sdf.mesh.vbuffer, &sdf.mesh.ibuffer, &sdf.shader,
+        &uniform! { time: time
+        }, &draw_params_sdf
+      ).unwrap();
 
     obj.meshes.iter().for_each( |mesh| {
-      // satanic
-      /*let mut uniforms = uniform! { model: model_mat, view: view_mat, perspective: perspective_mat,
-        u_light: light,
-      };
-      if let Some(mat) = mesh.material {
-        if let Some(diff) = obj.materials[mat].diffuse_texture {
-          //uniforms = uniforms.add( "diffuse_texture", &obj.textures[diff] );
-        }
-      }*/
-  //    normal_tex: &obj.textures[obj.materials[mesh.material.unwrap()].normal_texture.unwrap()]
-
       target.draw(&mesh.vbuffer, &mesh.ibuffer, &shader,
         &uniform! { model: model_mat, view: view_mat, perspective: perspective_mat,
                   u_light: light,

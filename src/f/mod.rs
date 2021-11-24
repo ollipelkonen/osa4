@@ -106,7 +106,7 @@ struct ImportData {
 }
 
 
-#[allow(dead_code)]
+//#[allow(dead_code)]
 fn mesh_from_gltf( g_primitive: &gltf::Primitive<'_>, imp: &ImportData, display: &glium::Display ) -> FMesh
 {
   let buffers = &imp.buffers;
