@@ -106,8 +106,8 @@ struct ImportData {
 }
 
 
-#[allow(dead_code)]
-fn from_gltf( g_primitive: &gltf::Primitive<'_>, imp: &ImportData, display: &glium::Display ) -> FMesh
+//#[allow(dead_code)]
+fn mesh_from_gltf( g_primitive: &gltf::Primitive<'_>, imp: &ImportData, display: &glium::Display ) -> FMesh
 {
   let buffers = &imp.buffers;
   let reader = g_primitive.reader(|buffer| Some(&buffers[buffer.index()]));
@@ -182,7 +182,7 @@ impl FObject {
     let meshes: Vec<FMesh> = imp.doc.nodes()
       .filter_map(|n| n.mesh() )
       .map( |node| {
-        from_gltf(&node.primitives().next().unwrap(), &imp, display)
+        mesh_from_gltf(&node.primitives().next().unwrap(), &imp, display)
       })
       .collect::<Vec<_>>();
 
