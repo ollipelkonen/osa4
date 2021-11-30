@@ -20,7 +20,6 @@ fn print_type_of<T>(_: &T, text: &str) {
 
 
 fn main() {
-
   //std::process::exit(1);
 
   #[allow(unused_imports)]
@@ -33,9 +32,9 @@ fn main() {
   let cb = glutin::ContextBuilder::new().with_depth_buffer(24);
   let display = glium::Display::new(wb, cb, &event_loop).unwrap();
 
-  let sdf = f::Sdf::create( &display, "joku.glsl" );
+  let sdf = f::sdf::create( &display, "joku.glsl" );
   let obj = f::FObject::load_gltf( "data/scene.gltf", &display );
-  let shader = f::Shader::create_shader_vf( &display, "test" );
+  let shader = f::shader::create_shader_vf( &display, "test" );
 
   println!("___ display  {:?}s -> ", now.elapsed().as_nanos() as f32/100000000.0);
 //  std::process::exit(1);

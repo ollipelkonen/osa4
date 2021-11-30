@@ -1,8 +1,8 @@
 
 extern crate glium;
 use std::{fs, io};
-pub mod Shader;
-pub mod Sdf;
+pub mod shader;
+pub mod sdf;
 
 
 pub struct FObject {
@@ -11,12 +11,18 @@ pub struct FObject {
   pub textures: Vec<glium::texture::SrgbTexture2d>,
 }
 
+pub struct FEdge
+{
+  pub i: [u32;2],
+}
+
 pub struct FMesh {
   pub vbuffer: glium::vertex::VertexBuffer<Vertex>,
   pub ibuffer: glium::index::IndexBuffer<u32>,
   pub material: Option<usize>,
   pub vertices: Option<Vec<Vertex>>,
-  pub indices: Option<Vec<u32>>
+  pub indices: Option<Vec<u32>>,
+  pub edges: Option<Vec<FEdge>>,
 }
 
 pub struct FMaterial {
@@ -152,7 +158,7 @@ fn mesh_from_gltf( g_primitive: &gltf::Primitive<'_>, imp: &ImportData, display:
   let vbuffer = glium::vertex::VertexBuffer::new(display, &vertices).unwrap();
   let ibuffer = glium::index::IndexBuffer::new(display, glium::index::PrimitiveType::TrianglesList, &(indices).as_ref().unwrap().as_slice()).unwrap();
   let material = g_primitive.material().index();
-  FMesh{ vbuffer, ibuffer, material, vertices: Some(vertices), indices: Some(indices.unwrap()) }
+  FMesh{ vbuffer, ibuffer, material, vertices: Some(vertices), indices: Some(indices.unwrap()), edges: None }
 }
 
 

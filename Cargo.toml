@@ -4,6 +4,11 @@ version = "0.1.0"
 authors = ["olli <olli@cloudnsci.com>"]
 edition = "2018"
 
+
+[profile.release]
+#lto = true         # link-time optimization
+# use also strip target/release/osa4
+# more https://github.com/johnthagen/min-sized-rust
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
