@@ -1,16 +1,7 @@
 
+cargo build --release
 
-Credit the Creator
-Plague Mask by Nom is licensed under Creative Commons Attribution
-
-CC AttributionCreative Commons Attribution
-
-Author must be credited. Commercial use is allowed.
-
-"Plague Mask" (https://skfb.ly/6TFx7) by Nom is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/).
-
-
-
+cargo run --release
 
 
 
@@ -26,6 +17,16 @@ shaders support #include <another.glsl>
 
 gltf, jpg and png supported
 
+
+
+Credit the Creator
+Plague Mask by Nom is licensed under Creative Commons Attribution
+
+CC AttributionCreative Commons Attribution
+
+Author must be credited. Commercial use is allowed.
+
+"Plague Mask" (https://skfb.ly/6TFx7) by Nom is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/).
 
 
 plague doctor 3d model by Nom/Nomthewise (CC 4.0)
