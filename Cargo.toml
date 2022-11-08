@@ -22,3 +22,4 @@ gltf = "*"
 #nalgebra-glm = "*"
 nalgebra = "*"
 regex = "1.5"
+rapier3d = { version = "*", features = [ "simd-stable" ] }
