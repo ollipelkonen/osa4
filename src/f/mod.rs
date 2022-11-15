@@ -16,6 +16,7 @@ pub struct FEdge
   pub i: [u32;2],
 }
 
+////#[derive(Debug, Ord, PartialOrd, Eq, PartialEq, Clone, Copy)]
 pub struct FMesh {
   pub vbuffer: glium::vertex::VertexBuffer<Vertex>,
   pub ibuffer: glium::index::IndexBuffer<u32>,
@@ -23,7 +24,26 @@ pub struct FMesh {
   pub vertices: Option<Vec<Vertex>>,
   pub indices: Option<Vec<u32>>,
   pub edges: Option<Vec<FEdge>>,
+  pub bounds: Option<[Vertex; 2]>
 }
+
+//TODO
+/*
+#[allow(dead_code)]
+impl Default for FMesh {
+  fn default() -> Self {
+    FMesh {
+      vbuffer: None,
+      ibuffer: None,
+      material: None,
+      vertices: None,
+      indices: None,
+      edges: None,
+      bounds: None
+    }
+  }
+}
+*/
 
 pub struct FMaterial {
   pub diffuse_texture: Option<usize>,
@@ -47,12 +67,34 @@ pub struct Vertex {
 
 implement_vertex!(Vertex, position, normal, tex_coords);
 
+
 impl Vertex {
   pub fn new(p: [f32; 3], n: [f32; 3], t: [f32; 2]) -> Vertex {
     Vertex {
       position: [p[0], p[1], p[2]],
       normal: [n[0], n[1], n[2]],
       tex_coords: [t[0], t[1]],
+    }
+  }
+  pub fn zero() -> Vertex {
+    Vertex {
+      position: [0.0, 0.0, 0.0],
+      normal: [0.0, 0.0, 0.0],
+      tex_coords: [0.0, 0.0]
+    }
+  }
+  pub fn min() -> Vertex {
+    Vertex {
+      position: [f32::MIN, f32::MIN, f32::MIN],
+      normal: [f32::MIN, f32::MIN, f32::MIN],
+      tex_coords: [f32::MIN, f32::MIN]
+    }
+  }
+  pub fn max() -> Vertex {
+    Vertex {
+      position: [f32::MAX, f32::MAX, f32::MAX],
+      normal: [f32::MAX, f32::MAX, f32::MAX],
+      tex_coords: [f32::MAX, f32::MAX]
     }
   }
 }
@@ -112,6 +154,7 @@ struct ImportData {
 }
 
 
+
 //#[allow(dead_code)]
 fn mesh_from_gltf( g_primitive: &gltf::Primitive<'_>, imp: &ImportData, display: &glium::Display ) -> FMesh
 {
@@ -155,10 +198,32 @@ fn mesh_from_gltf( g_primitive: &gltf::Primitive<'_>, imp: &ImportData, display:
       read_indices.into_u32().collect::<Vec<_>>()
     });
 
+
+  let bounds: [Vertex; 2] = vertices.iter().fold( [Vertex::max(), Vertex::min()], |st, elem| {
+      [
+        Vertex {
+          position: [
+            st[0].position[0].min( elem.position[0] ),
+            st[0].position[1].min( elem.position[1] ),
+            st[0].position[2].min( elem.position[2] )
+          ],
+            ..Vertex::default()
+        },
+        Vertex {
+          position: [
+            st[1].position[0].max( elem.position[0] ),
+            st[1].position[1].max( elem.position[1] ),
+            st[1].position[2].max( elem.position[2] )
+          ],
+          ..Vertex::default()
+        }
+      ]
+  } );
+
   let vbuffer = glium::vertex::VertexBuffer::new(display, &vertices).unwrap();
   let ibuffer = glium::index::IndexBuffer::new(display, glium::index::PrimitiveType::TrianglesList, &(indices).as_ref().unwrap().as_slice()).unwrap();
   let material = g_primitive.material().index();
-  FMesh{ vbuffer, ibuffer, material, vertices: Some(vertices), indices: Some(indices.unwrap()), edges: None }
+  FMesh{ vbuffer: vbuffer, ibuffer: ibuffer, material, vertices: Some(vertices), indices: Some(indices.unwrap()), bounds: Some(bounds), edges: None }
 }
 
 
