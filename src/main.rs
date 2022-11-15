@@ -36,6 +36,9 @@ fn main() {
   let obj = f::FObject::load_gltf( "data/scene.gltf", &display );
   let shader = f::shader::create_shader_vf( &display, "test" );
 
+
+  let obj_sphere = f::FObject::load_gltf( "data/sphere.gltf", &display );
+
   println!("___ display  {:?}s -> ", now.elapsed().as_nanos() as f32/100000000.0);
 //  std::process::exit(1);
 
@@ -123,21 +126,12 @@ fn main() {
     )).into();
 
 
-    let cx = 3.0f32 * time.sin();
-    let cy = 8.0f32 * time.cos();
-    let view_mat_2: [[f32; 4]; 4] = (nalgebra::Matrix4::<f32>::look_at_rh(
-      &nalgebra::Point3::new( 2.0, 0.0, 3.0 ),
-      &nalgebra::Point3::new( 2.0+cx, cy, 3.0 ),
-      &nalgebra::Vector3::new( 0.0, 0.0, 1.0 )
-    )).into();
-
-
     target.draw(&sdf.mesh.vbuffer, &sdf.mesh.ibuffer, &sdf.shader,
         &uniform! { time: time
         }, &draw_params_sdf
       ).unwrap();
 
-    obj.meshes.iter().for_each( |mesh| {
+      obj.meshes.iter().for_each( |mesh| {
       target.draw(&mesh.vbuffer, &mesh.ibuffer, &shader,
         &uniform! { model: model_mat, view: view_mat, perspective: perspective_mat,
                   u_light: light,
@@ -146,6 +140,29 @@ fn main() {
         }, &draw_params
       ).unwrap();
     });
+
+
+    let cx = 3.0f32 * time.sin();
+    let cy = 8.0f32 * time.cos();
+    let view_mat_2: [[f32; 4]; 4] = (nalgebra::Matrix4::<f32>::look_at_rh(
+      &nalgebra::Point3::new( 2.0, 0.0, 3.0 ),
+      &nalgebra::Point3::new( 2.0+cx, cy, 3.0 ),
+      &nalgebra::Vector3::new( 0.0, 0.0, 1.0 )
+    )).into();
+
+    for n in 1..10 {
+      let pos = &nalgebra::Vector3::new( 0.0, 0.0, n as f32 * -2.5 + 1.0 );
+      let model_mat_2: [[f32;4];4] = nalgebra::Matrix4::<f32>::new_translation(pos).append_scaling(0.4).into();
+      obj_sphere.meshes.iter().for_each( |mesh| {
+        target.draw(&mesh.vbuffer, &mesh.ibuffer, &shader,
+          &uniform! { model: model_mat_2, view: view_mat, perspective: perspective_mat,
+                    u_light: light,
+                    diffuse_tex: &obj.textures[obj.materials[mesh.material.unwrap()].diffuse_texture.unwrap()],
+                    normal_tex: &obj.textures[obj.materials[mesh.material.unwrap()].normal_texture.unwrap()]
+          }, &draw_params
+        ).unwrap();
+      });
+    }
 
     target.finish().unwrap();
 
