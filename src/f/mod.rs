@@ -5,18 +5,30 @@ pub mod shader;
 pub mod sdf;
 
 
+#[derive(Debug)]
 pub struct FObject {
   pub meshes: Vec<FMesh>,
   pub materials: Vec<FMaterial>,
   pub textures: Vec<glium::texture::SrgbTexture2d>,
 }
 
+impl FObject {
+  pub fn print_bounds(self) {
+    for m in self.meshes {
+      m.print_bounds();
+    }
+  }
+
+}
+
+#[derive(Debug)]
 pub struct FEdge
 {
   pub i: [u32;2],
 }
 
 ////#[derive(Debug, Ord, PartialOrd, Eq, PartialEq, Clone, Copy)]
+#[derive(Debug)]
 pub struct FMesh {
   pub vbuffer: glium::vertex::VertexBuffer<Vertex>,
   pub ibuffer: glium::index::IndexBuffer<u32>,
@@ -45,6 +57,20 @@ impl Default for FMesh {
 }
 */
 
+impl FMesh {
+  pub fn print_bounds(self) {
+    println!("bounds.  center [{:?}, {:?}, {:?}]   size: [{:?}, {:?}, {:?}] ",
+      (self.bounds.unwrap()[0].position[0]+self.bounds.unwrap()[1].position[0])/2.0,
+      (self.bounds.unwrap()[0].position[1]+self.bounds.unwrap()[1].position[1])/2.0,
+      (self.bounds.unwrap()[0].position[2]+self.bounds.unwrap()[1].position[2])/2.0,
+      (self.bounds.unwrap()[1].position[0]-self.bounds.unwrap()[0].position[0]),
+      (self.bounds.unwrap()[1].position[1]-self.bounds.unwrap()[0].position[1]),
+      (self.bounds.unwrap()[1].position[2]-self.bounds.unwrap()[0].position[2])
+    );
+  }
+}
+
+#[derive(Debug)]
 pub struct FMaterial {
   pub diffuse_texture: Option<usize>,
   pub normal_texture: Option<usize>,
@@ -58,7 +84,7 @@ fn print_type_of<T>(_: &T, text: &str) {
 }
 
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 pub struct Vertex {
   pub position: [f32; 3],
   pub normal: [f32; 3],

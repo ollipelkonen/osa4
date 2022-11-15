@@ -37,6 +37,7 @@ fn main() {
   let shader = f::shader::create_shader_vf( &display, "test" );
 
 
+  //TODO: center is in 0,1,0
   let obj_sphere = f::FObject::load_gltf( "data/sphere.gltf", &display );
 
   println!("___ display  {:?}s -> ", now.elapsed().as_nanos() as f32/100000000.0);
