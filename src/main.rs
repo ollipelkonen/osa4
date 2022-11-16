@@ -10,7 +10,6 @@ use std::ffi::OsStr;
 use std::time::{Duration, Instant};
 
 
-
 #[allow(dead_code)]
 fn print_type_of<T>(_: &T, text: &str) {
   println!("{:?} {:?}", text, std::any::type_name::<T>())
@@ -32,20 +31,31 @@ fn main() {
   let cb = glutin::ContextBuilder::new().with_depth_buffer(24);
   let display = glium::Display::new(wb, cb, &event_loop).unwrap();
 
+  println!("___ joku.glsl {:?}s -> ", now.elapsed().as_nanos() as f32/100000000.0);
   let sdf = f::sdf::create( &display, "joku.glsl" );
+  println!("___ scne.gltf  {:?}s -> ", now.elapsed().as_nanos() as f32/100000000.0);
   let obj = f::FObject::load_gltf( "data/scene.gltf", &display );
+  println!("___ shader  {:?}s -> ", now.elapsed().as_nanos() as f32/100000000.0);
   let shader = f::shader::create_shader_vf( &display, "test" );
 
 
+  println!("___ sphere.gltf  {:?}s -> ", now.elapsed().as_nanos() as f32/100000000.0);
   //TODO: center is in 0,1,0
   let obj_sphere = f::FObject::load_gltf( "data/sphere.gltf", &display );
 
-  println!("___ display  {:?}s -> ", now.elapsed().as_nanos() as f32/100000000.0);
+  println!("___ physics  {:?}s -> ", now.elapsed().as_nanos() as f32/100000000.0);
 //  std::process::exit(1);
 
-  let mut world: f::physics::World = f::physics::World::new();
 
-  //event_loop.run(move |event, _, control_flow| {
+  let mut world: f::physics::World = f::physics::World::new();
+  for n in 1..10 {
+    let pos = nalgebra::Vector3::new( 0.0, 0.0, n as f32 * -2.5 + 1.0 );
+    world.create_ball( pos, 0.8);
+  }
+
+
+  println!("___ display  {:?}s -> ", now.elapsed().as_nanos() as f32/100000000.0);
+
   event_loop.run(move |event, _, control_flow| {
     //TODO: i don't want any events. fuck this.
     let next_frame_time = std::time::Instant::now();

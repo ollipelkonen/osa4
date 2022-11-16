@@ -38,7 +38,7 @@ impl World {
       event_handler: (),
     };
     /* Create the ground. */
-    let collider = ColliderBuilder::cuboid(100.0, 0.1, 100.0).build();
+    /*let collider = ColliderBuilder::cuboid(100.0, 0.1, 100.0).build();
     w.collider_set.insert(collider);
     /* Create the bounding ball. */
     let mut rigid_body = RigidBodyBuilder::dynamic()
@@ -46,7 +46,18 @@ impl World {
             .build();
     let collider = ColliderBuilder::ball(0.5).restitution(0.7).build();
     let ball_body_handle = w.rigid_body_set.insert(rigid_body);
-    w.collider_set.insert_with_parent(collider, ball_body_handle, &mut w.rigid_body_set);
+    w.collider_set.insert_with_parent(collider, ball_body_handle, &mut w.rigid_body_set);*/
     w
   }
+
+  pub fn create_ball(&mut self, pos: nalgebra::Vector3<f32>, radius: Real) -> RigidBodyHandle{
+    let mut rigid_body = RigidBodyBuilder::dynamic()
+            .translation( vector![pos.x, pos.y, pos.z] )
+            .build();
+    let collider = ColliderBuilder::ball(radius).restitution(0.7).build();
+    let ball_body_handle = self.rigid_body_set.insert(rigid_body);
+    self.collider_set.insert_with_parent(collider, ball_body_handle, &mut self.rigid_body_set);
+    ball_body_handle
+  }
+
 }
