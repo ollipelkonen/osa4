@@ -3,12 +3,13 @@ extern crate glium;
 use std::{fs, io};
 pub mod shader;
 pub mod sdf;
+pub mod primitives;
 
 
 #[derive(Debug)]
 pub struct FObject {
   pub meshes: Vec<FMesh>,
-  pub materials: Vec<FMaterial>,
+  pub materials: Vec<primitives::FMaterial>,
   pub textures: Vec<glium::texture::SrgbTexture2d>,
 }
 
@@ -18,69 +19,6 @@ impl FObject {
       m.print_bounds();
     }
   }
-
-}
-
-#[derive(Debug)]
-pub struct FEdge
-{
-  pub i: [u32;2],
-}
-
-////#[derive(Debug, Ord, PartialOrd, Eq, PartialEq, Clone, Copy)]
-#[derive(Debug)]
-pub struct FMesh {
-  pub vbuffer: glium::vertex::VertexBuffer<Vertex>,
-  pub ibuffer: glium::index::IndexBuffer<u32>,
-  pub material: Option<usize>,
-  pub vertices: Option<Vec<Vertex>>,
-  pub indices: Option<Vec<u32>>,
-  pub edges: Option<Vec<FEdge>>,
-  pub bounds: Option<[Vertex; 2]>
-}
-
-//TODO
-/*
-#[allow(dead_code)]
-impl Default for FMesh {
-  fn default() -> Self {
-    FMesh {
-      vbuffer: None,
-      ibuffer: None,
-      material: None,
-      vertices: None,
-      indices: None,
-      edges: None,
-      bounds: None
-    }
-  }
-}
-*/
-
-impl FMesh {
-  pub fn print_bounds(self) {
-    println!("bounds.  center [{:?}, {:?}, {:?}]   size: [{:?}, {:?}, {:?}] ",
-      (self.bounds.unwrap()[0].position[0]+self.bounds.unwrap()[1].position[0])/2.0,
-      (self.bounds.unwrap()[0].position[1]+self.bounds.unwrap()[1].position[1])/2.0,
-      (self.bounds.unwrap()[0].position[2]+self.bounds.unwrap()[1].position[2])/2.0,
-      (self.bounds.unwrap()[1].position[0]-self.bounds.unwrap()[0].position[0]),
-      (self.bounds.unwrap()[1].position[1]-self.bounds.unwrap()[0].position[1]),
-      (self.bounds.unwrap()[1].position[2]-self.bounds.unwrap()[0].position[2])
-    );
-  }
-}
-
-#[derive(Debug)]
-pub struct FMaterial {
-  pub diffuse_texture: Option<usize>,
-  pub normal_texture: Option<usize>,
-  pub occlusion_texture: Option<usize>,
-  pub metallic_roughness_texture: Option<usize>  // unused
-}
-
-#[allow(dead_code)]
-fn print_type_of<T>(_: &T, text: &str) {
-  println!("{:?} {:?}", text, std::any::type_name::<T>())
 }
 
 
@@ -134,6 +72,57 @@ impl Default for Vertex {
       tex_coords: [0.0, 0.0]
     }
   }
+}
+
+
+
+////#[derive(Debug, Ord, PartialOrd, Eq, PartialEq, Clone, Copy)]
+#[derive(Debug)]
+pub struct FMesh {
+  pub vbuffer: glium::vertex::VertexBuffer<Vertex>,
+  pub ibuffer: glium::index::IndexBuffer<u32>,
+  pub material: Option<usize>,
+  pub vertices: Option<Vec<Vertex>>,
+  pub indices: Option<Vec<u32>>,
+  pub edges: Option<Vec<primitives::FEdge>>,
+  pub bounds: Option<[Vertex; 2]>
+}
+
+//TODO
+/*
+#[allow(dead_code)]
+impl Default for FMesh {
+  fn default() -> Self {
+    FMesh {
+      vbuffer: None,
+      ibuffer: None,
+      material: None,
+      vertices: None,
+      indices: None,
+      edges: None,
+      bounds: None
+    }
+  }
+}
+*/
+
+impl FMesh {
+  pub fn print_bounds(self) {
+    println!("bounds.  center [{:?}, {:?}, {:?}]   size: [{:?}, {:?}, {:?}] ",
+      (self.bounds.unwrap()[0].position[0]+self.bounds.unwrap()[1].position[0])/2.0,
+      (self.bounds.unwrap()[0].position[1]+self.bounds.unwrap()[1].position[1])/2.0,
+      (self.bounds.unwrap()[0].position[2]+self.bounds.unwrap()[1].position[2])/2.0,
+      (self.bounds.unwrap()[1].position[0]-self.bounds.unwrap()[0].position[0]),
+      (self.bounds.unwrap()[1].position[1]-self.bounds.unwrap()[0].position[1]),
+      (self.bounds.unwrap()[1].position[2]-self.bounds.unwrap()[0].position[2])
+    );
+  }
+}
+
+
+#[allow(dead_code)]
+fn print_type_of<T>(_: &T, text: &str) {
+  println!("{:?} {:?}", text, std::any::type_name::<T>())
 }
 
 
@@ -299,7 +288,7 @@ impl FObject {
           _ => None
           };
         let metallic_roughness_texture = None;
-        FMaterial { diffuse_texture, normal_texture, occlusion_texture, metallic_roughness_texture }
+        primitives::FMaterial { diffuse_texture, normal_texture, occlusion_texture, metallic_roughness_texture }
       })
       .collect();
 
