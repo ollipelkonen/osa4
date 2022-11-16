@@ -4,6 +4,7 @@ use std::{fs, io};
 pub mod shader;
 pub mod sdf;
 pub mod primitives;
+pub mod physics;
 
 
 #[derive(Debug)]

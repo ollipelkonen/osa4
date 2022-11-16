@@ -43,7 +43,9 @@ fn main() {
   println!("___ display  {:?}s -> ", now.elapsed().as_nanos() as f32/100000000.0);
 //  std::process::exit(1);
 
+  let mut world: f::physics::World = f::physics::World::new();
 
+  //event_loop.run(move |event, _, control_flow| {
   event_loop.run(move |event, _, control_flow| {
     //TODO: i don't want any events. fuck this.
     let next_frame_time = std::time::Instant::now();
