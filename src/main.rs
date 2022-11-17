@@ -39,20 +39,18 @@ fn main() {
   let shader = f::shader::create_shader_vf( &display, "test" );
 
 
-  println!("___ sphere.gltf  {:?}s -> ", now.elapsed().as_nanos() as f32/100000000.0);
+  //println!("___ sphere.gltf  {:?}s -> ", now.elapsed().as_nanos() as f32/100000000.0);
   //TODO: center is in 0,1,0
-  let obj_sphere = f::FObject::load_gltf( "data/sphere.gltf", &display );
+  //let obj_sphere = Some(f::FObject::load_gltf( "data/sphere.gltf", &display ));
 
   println!("___ physics  {:?}s -> ", now.elapsed().as_nanos() as f32/100000000.0);
 //  std::process::exit(1);
 
 
   let mut world: f::physics::World = f::physics::World::new();
+  world.init_balls(&display);
+  //world.obj_sphere = obj_sphere;
   //let mut balls: Vec<RigidBodyHandle>{>::new();
-  let balls = (1..10).map( |n| {
-      let pos = nalgebra::Vector3::new( 0.0, 0.0, n as f32 * -2.5 + 1.0 );
-      world.create_ball( pos, 0.8 )
-    } );
 
 
   println!("___ display  {:?}s -> ", now.elapsed().as_nanos() as f32/100000000.0);
@@ -156,21 +154,22 @@ fn main() {
     });
 
 
-    let cx = 3.0f32 * time.sin();
+    /*let cx = 3.0f32 * time.sin();
     let cy = 8.0f32 * time.cos();
     let view_mat_2: [[f32; 4]; 4] = (nalgebra::Matrix4::<f32>::look_at_rh(
       &nalgebra::Point3::new( 2.0, 0.0, 3.0 ),
       &nalgebra::Point3::new( 2.0+cx, cy, 3.0 ),
       &nalgebra::Vector3::new( 0.0, 0.0, 1.0 )
-    )).into();
+    )).into();*/
 
+    world.render_balls( &target, time, perspective_mat );
     //TODO: |n| may outlive borrowed value `world`
     /*balls.for_each( |b| {
       let ball = &world.rigid_body_set[b];
     } );*/
     //println!("ekeke {:?}", world.rigid_body_set.);
 
-    for n in 1..10 {
+    /*for n in 1..10 {
       let pos = &nalgebra::Vector3::new( 0.0, 0.0, n as f32 * -2.5 + 1.0 );
       let model_mat_2: [[f32;4];4] = nalgebra::Matrix4::<f32>::new_translation(pos).append_scaling(0.4).into();
       obj_sphere.meshes.iter().for_each( |mesh| {
@@ -182,7 +181,7 @@ fn main() {
           }, &draw_params
         ).unwrap();
       });
-    }
+    }*/
 
     target.finish().unwrap();
 
