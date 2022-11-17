@@ -48,10 +48,11 @@ fn main() {
 
 
   let mut world: f::physics::World = f::physics::World::new();
-  for n in 1..10 {
-    let pos = nalgebra::Vector3::new( 0.0, 0.0, n as f32 * -2.5 + 1.0 );
-    world.create_ball( pos, 0.8);
-  }
+  //let mut balls: Vec<RigidBodyHandle>{>::new();
+  let balls = (1..10).map( |n| {
+      let pos = nalgebra::Vector3::new( 0.0, 0.0, n as f32 * -2.5 + 1.0 );
+      world.create_ball( pos, 0.8 )
+    } );
 
 
   println!("___ display  {:?}s -> ", now.elapsed().as_nanos() as f32/100000000.0);
@@ -162,6 +163,12 @@ fn main() {
       &nalgebra::Point3::new( 2.0+cx, cy, 3.0 ),
       &nalgebra::Vector3::new( 0.0, 0.0, 1.0 )
     )).into();
+
+    //TODO: |n| may outlive borrowed value `world`
+    /*balls.for_each( |b| {
+      let ball = &world.rigid_body_set[b];
+    } );*/
+    //println!("ekeke {:?}", world.rigid_body_set.);
 
     for n in 1..10 {
       let pos = &nalgebra::Vector3::new( 0.0, 0.0, n as f32 * -2.5 + 1.0 );
