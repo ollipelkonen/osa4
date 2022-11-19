@@ -162,7 +162,7 @@ fn main() {
       &nalgebra::Vector3::new( 0.0, 0.0, 1.0 )
     )).into();*/
 
-    world.render_balls( &target, time, perspective_mat );
+    world.render_balls( &mut target, time, perspective_mat );
     //TODO: |n| may outlive borrowed value `world`
     /*balls.for_each( |b| {
       let ball = &world.rigid_body_set[b];
