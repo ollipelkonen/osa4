@@ -4,7 +4,7 @@ extern crate nalgebra as nalgebra;
 extern crate gltf;
 
 
-//use gltf::image;
+use std::fs;
 use ::image::ImageFormat::{Jpeg, Png};
 
 //use ::image::ImageFormat; //::ImageFormat::{Jpeg, Png};
@@ -49,10 +49,7 @@ fn main() {
   println!("___ shader  {:?}s -> ", now.elapsed().as_nanos() as f32/100000000.0);
   let shader = f::shader::create_shader_vf( &display, "test" );
 
-  /*let encoded_format = Jpeg;
-  let encoded_image: [u8; 3] = [1, 2, 3];
-  let decoded_image = image::load_from_memory_with_format(&encoded_image, encoded_format);*/
-  //images.push(image::Data::new(decoded_image));
+  let image = f::load_image( "rock.jpg", &display);
   
   //println!("___ sphere.gltf  {:?}s -> ", now.elapsed().as_nanos() as f32/100000000.0);
   //TODO: center is in 0,1,0
