@@ -49,8 +49,7 @@ fn main() {
   println!("___ shader  {:?}s -> ", now.elapsed().as_nanos() as f32/100000000.0);
   let shader = f::shader::create_shader_vf( &display, "test" );
 
-  let image = f::load_image( "rock.jpg", &display);
-  
+ 
   //println!("___ sphere.gltf  {:?}s -> ", now.elapsed().as_nanos() as f32/100000000.0);
   //TODO: center is in 0,1,0
   //let obj_sphere = Some(f::FObject::load_gltf( "data/sphere.gltf", &display ));

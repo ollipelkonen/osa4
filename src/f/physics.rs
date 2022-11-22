@@ -85,6 +85,11 @@ impl<'a> World {
     } )
     .collect();
     self.obj_sphere = Some(f::FObject::load_gltf( "data/sphere.gltf", &display ));
+
+    if let Some(obj) = &mut self.obj_sphere {
+      obj.set_texture( "rock.jpg", display );
+    }
+
   }
 
   pub fn render_balls<'b>(&self, target: &mut glium::Frame, time: f32, perspective_mat: [[f32;4];4]) {
@@ -139,8 +144,8 @@ impl<'a> World {
             target.draw(&mesh.vbuffer, &mesh.ibuffer, &shader,
               &uniform! { model: model_mat_2, view: view_mat, perspective: perspective_mat,
                       u_light: light,
-                      diffuse_tex: &obj.textures[obj.materials[mesh.material.unwrap()].diffuse_texture.unwrap()],
-                      normal_tex: &obj.textures[obj.materials[mesh.material.unwrap()].normal_texture.unwrap()]
+                      diffuse_tex: &obj.textures[obj.materials[mesh.material.unwrap()].diffuse_texture.unwrap()]//,
+                      //normal_tex: &obj.textures[obj.materials[mesh.material.unwrap()].normal_texture.unwrap()]
               },
               &draw_params);
             //println!("GRR {:?}", (*target).get_dimensions() );

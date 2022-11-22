@@ -247,19 +247,24 @@ impl FObject {
   }
 
   // set same texture for every object
-  pub fn set_texture(&mut self, texture: glium::texture::SrgbTexture2d) {
-    self.textures = vec![texture];
-    self.materials = vec![
-      primitives::FMaterial {
-        diffuse_texture: Some(0),
-        normal_texture:  None,
-        occlusion_texture:  None,
-        metallic_roughness_texture:  None
+//  pub fn set_texture(&mut self, texture: glium::texture::SrgbTexture2d) {
+  pub fn set_texture(&mut self, texture: &str, display: &glium::Display) {
+
+    if let Some(image) = load_image( texture, &display) {
+      self.textures = vec![image];
+      self.materials = vec![
+        primitives::FMaterial {
+          diffuse_texture: Some(0),
+          normal_texture:  None,
+          occlusion_texture:  None,
+          metallic_roughness_texture:  None
+        }
+      ];
+      for mesh in self.meshes.iter_mut() {
+        mesh.material = Some(0);
       }
-    ];
-    for mesh in self.meshes.iter_mut() {
-      mesh.material = Some(0);
     }
+
   }
 
   pub fn load_gltf( filename: &str, display: &glium::Display ) -> FObject {
