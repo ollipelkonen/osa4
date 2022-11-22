@@ -1,6 +1,8 @@
 
 extern crate glium;
 use std::{fs, io};
+
+use self::primitives::FMaterial;
 pub mod shader;
 pub mod sdf;
 pub mod primitives;
@@ -14,21 +16,6 @@ pub struct FObject {
   pub textures: Vec<glium::texture::SrgbTexture2d>,
 }
 
-impl FObject {
-  pub fn print_bounds(self) {
-    for m in self.meshes {
-      m.print_bounds();
-    }
-  }
-
-  // set same material for every object
-  pub fn set_material(&mut self, material: primitives::FMaterial) {
-    self.materials = vec![material];
-    for mesh in self.meshes.iter_mut() {
-      mesh.material = Some(0);
-    }
-  }
-}
 
 
 #[derive(Copy, Clone, Debug)]
@@ -253,6 +240,28 @@ fn mesh_from_gltf( g_primitive: &gltf::Primitive<'_>, imp: &ImportData, display:
 
 
 impl FObject {
+  pub fn print_bounds(self) {
+    for m in self.meshes {
+      m.print_bounds();
+    }
+  }
+
+  // set same texture for every object
+  pub fn set_texture(&mut self, texture: glium::texture::SrgbTexture2d) {
+    self.textures = vec![texture];
+    self.materials = vec![
+      primitives::FMaterial {
+        diffuse_texture: Some(0),
+        normal_texture:  None,
+        occlusion_texture:  None,
+        metallic_roughness_texture:  None
+      }
+    ];
+    for mesh in self.meshes.iter_mut() {
+      mesh.material = Some(0);
+    }
+  }
+
   pub fn load_gltf( filename: &str, display: &glium::Display ) -> FObject {
     let (doc, buffers, images) = match gltf::import(filename) {
       Ok(tuple) => tuple,
@@ -287,15 +296,15 @@ impl FObject {
         let diffuse_texture = match material.pbr_metallic_roughness().base_color_texture() {
           Some(d) => Some(d.texture().index()),
           _ => None
-          };
+        };
         let normal_texture = match material.normal_texture() {
           Some(d) => Some(d.texture().index()),
           _ => None
-          };
+        };
         let occlusion_texture = match material.occlusion_texture() {
           Some(d) => Some(d.texture().index()),
           _ => None
-          };
+        };
         let metallic_roughness_texture = None;
         primitives::FMaterial { diffuse_texture, normal_texture, occlusion_texture, metallic_roughness_texture }
       })
