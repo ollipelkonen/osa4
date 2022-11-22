@@ -20,6 +20,14 @@ impl FObject {
       m.print_bounds();
     }
   }
+
+  // set same material for every object
+  pub fn set_material(&mut self, material: primitives::FMaterial) {
+    self.materials = vec![material];
+    for mesh in self.meshes.iter_mut() {
+      mesh.material = Some(0);
+    }
+  }
 }
 
 
