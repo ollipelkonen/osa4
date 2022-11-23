@@ -64,24 +64,39 @@ impl<'a> World {
     w
   }
 
+  
+  pub fn create_ball(&mut self, pos: nalgebra::Vector3<f32>, radius: Real, previous: Option<RigidBodyHandle>, dynamic: bool) -> RigidBodyHandle{
 
-  pub fn create_ball(&mut self, pos: nalgebra::Vector3<f32>, radius: Real) -> RigidBodyHandle{
-    let rigid_body = RigidBodyBuilder::dynamic()
-            .translation( vector![pos.x, pos.y, pos.z] )
-            .build();
+    let rigid_body = match dynamic {
+      true => RigidBodyBuilder::dynamic(),
+      false => RigidBodyBuilder::kinematic_position_based()
+    }.translation( vector![pos.x, pos.y, pos.z] )
+      .build();
+
     let collider = ColliderBuilder::ball(radius).restitution(0.7).build();
     let ball_body_handle = self.rigid_body_set.insert(rigid_body);
     self.collider_set.insert_with_parent(collider, ball_body_handle, &mut self.rigid_body_set);
+
+    if let Some(prev) = previous {
+      let joint = SphericalJointBuilder::new()
+        .local_anchor1(point![0.0, 0.0, 1.0])
+        .local_anchor2(point![0.0, 0.0, -3.0]);
+      self.impulse_joint_set.insert(ball_body_handle, prev, joint, true);
+    }
     ball_body_handle
   }
+
+
 
   pub fn init_balls(&mut self, display: &glium::Display) {
     self.shader = Some(f::shader::create_shader_vf( &display, "test" ));
 
     //self.obj_sphere = Some(FObject::load_gltf( "data/sphere.gltf", &display ));
+    let mut previous: Option<RigidBodyHandle> = None;
     self.balls = (1..10).map( |n| {
       let pos = nalgebra::Vector3::new( 0.0, 0.0, n as f32 * -2.5 + 1.0 );
-      self.create_ball( pos, 0.8 )
+      previous = Some(self.create_ball( pos, 0.8, previous, n>1 ));
+      previous.unwrap()
     } )
     .collect();
     self.obj_sphere = Some(f::FObject::load_gltf( "data/sphere.gltf", &display ));
