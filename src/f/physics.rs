@@ -87,12 +87,12 @@ impl<'a> World {
     self.obj_sphere = Some(f::FObject::load_gltf( "data/sphere.gltf", &display ));
 
     if let Some(obj) = &mut self.obj_sphere {
-      obj.set_texture( "rock.jpg", display );
+      obj.set_texture( "texture.jpg", display );
     }
 
   }
 
-  pub fn render_balls<'b>(&self, target: &mut glium::Frame, time: f32, perspective_mat: [[f32;4];4]) {
+  pub fn render_balls<'b>(&mut self, target: &mut glium::Frame, time: f32, perspective_mat: [[f32;4];4]) {
     let light = [1.4, 0.4, 0.7f32];
 
     let model_mat: [[f32;4];4] = nalgebra::Matrix4::<f32>::identity().into();
@@ -123,6 +123,23 @@ impl<'a> World {
       },
       .. Default::default()
     };
+
+    let gravity = vector![0.0, -9.81, 0.0];
+
+    self.physics_pipeline.step(
+      &gravity,
+      &self.integration_parameters,
+      &mut self.island_manager,
+      &mut self.broad_phase,
+      &mut self.narrow_phase,
+      &mut self.rigid_body_set,
+      &mut self.collider_set,
+      &mut self.impulse_joint_set,
+      &mut self.multibody_joint_set,
+      &mut self.ccd_solver,
+      &self.physics_hooks,
+      &self.event_handler,
+    );
 
 
     if let Some(obj) = &self.obj_sphere {
