@@ -5,7 +5,9 @@ extern crate gltf;
 
 
 use std::fs;
+use std::ops::Mul;
 use ::image::ImageFormat::{Jpeg, Png};
+use nalgebra::{Isometry3, vector, ArrayStorage, Const};
 
 //use ::image::ImageFormat; //::ImageFormat::{Jpeg, Png};
 //use gltf::image_crate::ImageFormat::{Jpeg, Png};
@@ -45,7 +47,9 @@ fn main() {
   println!("___ joku.glsl {:?}s -> ", now.elapsed().as_nanos() as f32/100000000.0);
   let sdf = f::sdf::create( &display, "joku.glsl" );
   println!("___ scne.gltf  {:?}s -> ", now.elapsed().as_nanos() as f32/100000000.0);
-  let obj = f::FObject::load_gltf( "data/scene.gltf", &display );
+  let mut obj = f::FObject::load_gltf( "data/scene.gltf", &display );
+  //obj.matrix = nalgebra::Matrix4::<f32>::new_rotation(axisangle)
+  obj.matrix = Isometry3::rotation( vector![ -std::f32::consts::PI / 2.0, 0.0, 0.0] ).into();
   println!("___ shader  {:?}s -> ", now.elapsed().as_nanos() as f32/100000000.0);
   let shader = f::shader::create_shader_vf( &display, "test" );
 
@@ -143,9 +147,9 @@ fn main() {
     let cx = 13.0f32 * time.sin();
     let cy = 18.0f32 * time.cos();
     let view_mat: [[f32; 4]; 4] = (nalgebra::Matrix4::<f32>::look_at_rh(
-      &nalgebra::Point3::new( 2.0+cx, cy, 3.0 ),
-      &nalgebra::Point3::new( 2.0, 0.0, 3.0 ),
-      &nalgebra::Vector3::new( 0.0, 0.0, 1.0 )
+      &nalgebra::Point3::new( 2.0+cx, 3.0, cy ),
+      &nalgebra::Point3::new( 2.0, 3.0, 0.0 ),
+      &nalgebra::Vector3::new( 0.0, 1.0, 0.0 )
     )).into();
 
 
@@ -154,12 +158,16 @@ fn main() {
         }, &draw_params_sdf
       ).unwrap();
 
-      obj.meshes.iter().for_each( |mesh| {
+    obj.meshes.iter().for_each( |mesh| {
+      //TODO: is this correct way?
+      let model_matrix: [[f32;4];4] = mesh.matrix.mul( obj.matrix ).into();
       target.draw(&mesh.vbuffer, &mesh.ibuffer, &shader,
-        &uniform! { model: model_mat, view: view_mat, perspective: perspective_mat,
-                  u_light: light,
-                  diffuse_tex: &obj.textures[obj.materials[mesh.material.unwrap()].diffuse_texture.unwrap()],
-                  normal_tex: &obj.textures[obj.materials[mesh.material.unwrap()].normal_texture.unwrap()]
+        &uniform! { model: model_matrix,
+                    view: view_mat,
+                    perspective: perspective_mat,
+                    u_light: light,
+                    diffuse_tex: &obj.textures[obj.materials[mesh.material.unwrap()].diffuse_texture.unwrap()],
+                    normal_tex: &obj.textures[obj.materials[mesh.material.unwrap()].normal_texture.unwrap()]
         }, &draw_params
       ).unwrap();
     });
@@ -173,7 +181,7 @@ fn main() {
       &nalgebra::Vector3::new( 0.0, 0.0, 1.0 )
     )).into();*/
 
-    world.render_balls( &mut target, time, perspective_mat );
+    world.render_balls( &mut target, time, view_mat, perspective_mat );
     //TODO: |n| may outlive borrowed value `world`
     /*balls.for_each( |b| {
       let ball = &world.rigid_body_set[b];

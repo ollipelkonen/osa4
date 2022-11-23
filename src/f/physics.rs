@@ -1,4 +1,5 @@
 extern crate glium;
+use nalgebra::Matrix4;
 use rapier3d::prelude::*;
 use crate::glium::Surface;
 
@@ -94,7 +95,7 @@ impl<'a> World {
     //self.obj_sphere = Some(FObject::load_gltf( "data/sphere.gltf", &display ));
     let mut previous: Option<RigidBodyHandle> = None;
     self.balls = (1..10).map( |n| {
-      let pos = nalgebra::Vector3::new( 0.0, 0.0, n as f32 * -2.5 + 1.0 );
+      let pos = nalgebra::Vector3::new( 0.0, n as f32 * 2.5 - 1.0, 0.0 );
       previous = Some(self.create_ball( pos, 0.8, previous, n>1 ));
       previous.unwrap()
     } )
@@ -107,29 +108,8 @@ impl<'a> World {
 
   }
 
-  pub fn render_balls<'b>(&mut self, target: &mut glium::Frame, time: f32, perspective_mat: [[f32;4];4]) {
+  pub fn render_balls<'b>(&mut self, target: &mut glium::Frame, time: f32, view_mat: [[f32;4];4], perspective_mat: [[f32;4];4]) {
     let light = [1.4, 0.4, 0.7f32];
-
-    let model_mat: [[f32;4];4] = nalgebra::Matrix4::<f32>::identity().into();
-
-    /*let perspective_mat: [[f32;4];4] = {
-      let (width, height) = (*target).get_dimensions();
-      //let aspect_ratio = height as f32 / width as f32;
-      let aspect_ratio = width as f32 / height as f32;
-      let fov: f32 = 3.141592 / 2.0;
-      let znear = 0.1;
-      let zfar = 1024.0;
-      nalgebra::Matrix4::<f32>::new_perspective( aspect_ratio, fov, znear, zfar ).into()
-      //(*nalgebra::Perspective3::new( aspect_ratio, fov, znear, zfar ).as_matrix() as nalgebra::Matrix4<f32>).into()
-    };*/
-
-    let cx = 13.0f32 * time.sin();
-    let cy = 18.0f32 * time.cos();
-    let view_mat: [[f32; 4]; 4] = (nalgebra::Matrix4::<f32>::look_at_rh(
-      &nalgebra::Point3::new( 2.0+cx, cy, 3.0 ),
-      &nalgebra::Point3::new( 2.0, 0.0, 3.0 ),
-      &nalgebra::Vector3::new( 0.0, 0.0, 1.0 )
-    )).into();
     let draw_params = glium::DrawParameters {
       depth: glium::Depth {
         test: glium::draw_parameters::DepthTest::IfLess,
@@ -163,25 +143,17 @@ impl<'a> World {
         self.balls.iter().for_each( |b| {
           let ball = &self.rigid_body_set[*b];
 
-          //let pos = &nalgebra::Vector3::new( 0.0, 0.0, n as f32 * -2.5 + 1.0 );
           let pos = ball.translation();
-          let model_mat_2: [[f32;4];4] = nalgebra::Matrix4::<f32>::new_translation(pos).append_scaling(0.4).into();
-          /*match self.obj_sphere {
-            Some(sp) => {
-              println!("EKEKE");
-            },
-            _ => {}
-          }*/
           for mesh in &obj.meshes {
+            let m4: Matrix4<f32> = mesh.matrix * obj.matrix;
+            let model_matrix: [[f32;4];4] = (m4 * nalgebra::Matrix4::<f32>::new_translation(pos).append_scaling(0.4)).into();
             target.draw(&mesh.vbuffer, &mesh.ibuffer, &shader,
-              &uniform! { model: model_mat_2, view: view_mat, perspective: perspective_mat,
+              &uniform! { model: model_matrix, view: view_mat, perspective: perspective_mat,
                       u_light: light,
                       diffuse_tex: &obj.textures[obj.materials[mesh.material.unwrap()].diffuse_texture.unwrap()]//,
                       //normal_tex: &obj.textures[obj.materials[mesh.material.unwrap()].normal_texture.unwrap()]
               },
               &draw_params);
-            //println!("GRR {:?}", (*target).get_dimensions() );
-            //target.clear_color_and_depth((0.0, 0.0, 1.0, 1.0), 1.0);
           }
 
         } );

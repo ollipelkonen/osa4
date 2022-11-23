@@ -13,6 +13,7 @@ pub mod physics;
 
 #[derive(Debug)]
 pub struct FObject {
+  pub matrix: Matrix4<f32>,
   pub meshes: Vec<FMesh>,
   pub materials: Vec<primitives::FMaterial>,
   pub textures: Vec<glium::texture::SrgbTexture2d>,
@@ -320,7 +321,7 @@ impl FObject {
       })
       .collect();
 
-    FObject { meshes, materials, textures }
+    FObject { matrix: Matrix4::<f32>::identity(), meshes, materials, textures }
   }
 
   pub fn print_tree(&self, node: &gltf::Node, depth: i32) {
