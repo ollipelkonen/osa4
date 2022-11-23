@@ -32,8 +32,8 @@ pub struct World {
 }
 
 impl<'a> World {
-  pub fn new() -> World {
-    let w: World = World {
+  pub fn new() -> Self {
+    Self {
       rigid_body_set: RigidBodySet::new(),
       collider_set: ColliderSet::new(),
       //gravity: vector![0.0, -9.81, 0.0],
@@ -51,7 +51,7 @@ impl<'a> World {
       balls: std::vec::Vec::new(),
       obj_sphere: None::<FObject>,
       shader: None::<glium::Program>,
-    };
+    }
     /* Create the ground. */
     /*let collider = ColliderBuilder::cuboid(100.0, 0.1, 100.0).build();
     w.collider_set.insert(collider);
@@ -62,7 +62,6 @@ impl<'a> World {
     let collider = ColliderBuilder::ball(0.5).restitution(0.7).build();
     let ball_body_handle = w.rigid_body_set.insert(rigid_body);
     w.collider_set.insert_with_parent(collider, ball_body_handle, &mut w.rigid_body_set);*/
-    w
   }
 
   
@@ -74,25 +73,39 @@ impl<'a> World {
     }.translation( vector![pos.x, pos.y, pos.z] )
       .build();
 
-    let collider = ColliderBuilder::ball(radius).restitution(0.7).build();
+    let collider = ColliderBuilder::ball(radius).restitution(0.7).mass(10.0).build();
     let ball_body_handle = self.rigid_body_set.insert(rigid_body);
     self.collider_set.insert_with_parent(collider, ball_body_handle, &mut self.rigid_body_set);
 
+    //rigid_body.
     if let Some(prev) = previous {
+      let k1 = point![pos.x, pos.y, pos.z];
+      let k2 = point![pos.x, pos.y-2.5, pos.z];
       let joint = SphericalJointBuilder::new()
-        .local_anchor1(point![0.0, 0.0, 1.0])
-        .local_anchor2(point![0.0, 0.0, -3.0]);
+        .local_anchor1(k1)
+        .local_anchor2(k2);
+        //.local_anchor1(point![0.0, 0.0, -3.0])
+        //.local_anchor2(point![0.0, 0.0, 1.0]);
       self.impulse_joint_set.insert(ball_body_handle, prev, joint, true);
     }
     ball_body_handle
   }
 
 
+  pub fn add_force<'c>(&mut self) {
+    for body in self.rigid_body_set.iter_mut() {
+      let m:Vector<f32> = body.1.translation().normalize() * 1000.0;
+      //body.1.add_force(vector![0.0, 1000.0, 0.0], true);
+      //body.1.add_force( -m, true);
+      //body.1.set_linvel(-m, true);
+      body.1.set_linvel(vector![0.0, 1000.0, 0.0], true);
+      //break;
+    }
+  }
 
   pub fn init_balls(&mut self, display: &glium::Display) {
     self.shader = Some(f::shader::create_shader_vf( &display, "test" ));
 
-    //self.obj_sphere = Some(FObject::load_gltf( "data/sphere.gltf", &display ));
     let mut previous: Option<RigidBodyHandle> = None;
     self.balls = (1..10).map( |n| {
       let pos = nalgebra::Vector3::new( 0.0, n as f32 * 2.5 - 1.0, 0.0 );

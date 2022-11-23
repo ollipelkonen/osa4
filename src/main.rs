@@ -88,6 +88,10 @@ fn main() {
                 *control_flow = glutin::event_loop::ControlFlow::Exit;
                 return
               },
+              glutin::event::VirtualKeyCode::Space => {
+                println!("____ add force");
+                world.add_force();
+              },
               _ => {}
             }
           }
@@ -182,11 +186,6 @@ fn main() {
     )).into();*/
 
     world.render_balls( &mut target, time, view_mat, perspective_mat );
-    //TODO: |n| may outlive borrowed value `world`
-    /*balls.for_each( |b| {
-      let ball = &world.rigid_body_set[b];
-    } );*/
-    //println!("ekeke {:?}", world.rigid_body_set.);
 
     /*for n in 1..10 {
       let pos = &nalgebra::Vector3::new( 0.0, 0.0, n as f32 * -2.5 + 1.0 );
