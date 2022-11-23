@@ -20,7 +20,7 @@ pub fn create(display: &glium::Display, filename: &str) -> Sdf {
   let indices = [ 0u32,1,3, 1,3,2];
   let vbuffer = glium::vertex::VertexBuffer::new(display, &vertices).unwrap();
   let ibuffer = glium::index::IndexBuffer::new(display, glium::index::PrimitiveType::TrianglesList, &indices).unwrap();
-  let mesh = f::FMesh{ vbuffer, ibuffer, material: None, vertices: None, indices: None, edges: None, bounds: None };
+  let mesh = f::FMesh{ vbuffer, ibuffer, material: None, vertices: None, indices: None, edges: None, bounds: None, matrix: nalgebra::Matrix4::<f32>::identity() };
 
   let vs = f::shader::load_shader( "sdf-vert.glsl" );
   let fs = f::shader::load_shader( &filename );

@@ -2,6 +2,8 @@
 extern crate glium;
 use std::{fs, io};
 
+use nalgebra::Matrix4;
+
 use self::primitives::FMaterial;
 pub mod shader;
 pub mod sdf;
@@ -75,6 +77,7 @@ impl Default for Vertex {
 ////#[derive(Debug, Ord, PartialOrd, Eq, PartialEq, Clone, Copy)]
 #[derive(Debug)]
 pub struct FMesh {
+  pub matrix: Matrix4<f32>,
   pub vbuffer: glium::vertex::VertexBuffer<Vertex>,
   pub ibuffer: glium::index::IndexBuffer<u32>,
   pub material: Option<usize>,
@@ -84,13 +87,13 @@ pub struct FMesh {
   pub bounds: Option<[Vertex; 2]>
 }
 
-//TODO
-/*
-#[allow(dead_code)]
+//TODO:
+/*#[allow(dead_code)]
 impl Default for FMesh {
   fn default() -> Self {
     FMesh {
-      vbuffer: None,
+      matrix. nalgebra::Matrix4::<f32>::identity(),
+      vbuffer: glium::vertex::VertexBuffer::<Vertex>::empty(display, 0),
       ibuffer: None,
       material: None,
       vertices: None,
@@ -99,8 +102,8 @@ impl Default for FMesh {
       bounds: None
     }
   }
-}
-*/
+}*/
+
 
 impl FMesh {
   pub fn print_bounds(self) {
@@ -113,6 +116,7 @@ impl FMesh {
       (self.bounds.unwrap()[1].position[2]-self.bounds.unwrap()[0].position[2])
     );
   }
+
 }
 
 
@@ -234,7 +238,8 @@ fn mesh_from_gltf( g_primitive: &gltf::Primitive<'_>, imp: &ImportData, display:
   let vbuffer = glium::vertex::VertexBuffer::new(display, &vertices).unwrap();
   let ibuffer = glium::index::IndexBuffer::new(display, glium::index::PrimitiveType::TrianglesList, &(indices).as_ref().unwrap().as_slice()).unwrap();
   let material = g_primitive.material().index();
-  FMesh{ vbuffer: vbuffer, ibuffer: ibuffer, material, vertices: Some(vertices), indices: Some(indices.unwrap()), bounds: Some(bounds), edges: None }
+  FMesh{ vbuffer: vbuffer, ibuffer: ibuffer, material, vertices: Some(vertices), indices: Some(indices.unwrap()),
+    bounds: Some(bounds), edges: None, matrix: nalgebra::Matrix4::<f32>::identity() }
 }
 
 
