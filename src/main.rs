@@ -4,10 +4,11 @@ extern crate nalgebra as nalgebra;
 extern crate gltf;
 
 
-use std::fs;
+//use std::fs;
 use std::ops::Mul;
-use ::image::ImageFormat::{Jpeg, Png};
-use nalgebra::{Isometry3, vector, ArrayStorage, Const};
+//use ::image::ImageFormat::{Jpeg, Png};
+//use nalgebra::{Isometry3, vector, ArrayStorage, Const};
+use nalgebra::{Isometry3, vector};
 
 //use ::image::ImageFormat; //::ImageFormat::{Jpeg, Png};
 //use gltf::image_crate::ImageFormat::{Jpeg, Png};
@@ -49,7 +50,7 @@ fn main() {
   println!("___ joku.glsl {:?}s -> ", now.elapsed().as_nanos() as f32/100000000.0);
   let sdf = f::sdf::create( &display, "joku.glsl" );
   println!("___ scne.gltf  {:?}s -> ", now.elapsed().as_nanos() as f32/100000000.0);
-  let mut obj = f::FObject::load_gltf( "data/scene.gltf", &display );
+  let mut obj = f::load_gltf( "data/scene.gltf", &display );
   //obj.matrix = nalgebra::Matrix4::<f32>::new_rotation(axisangle)
   obj.matrix = Isometry3::rotation( vector![ -std::f32::consts::PI / 2.0, 0.0, 0.0] ).into();
   println!("___ shader  {:?}s -> ", now.elapsed().as_nanos() as f32/100000000.0);
@@ -66,7 +67,7 @@ fn main() {
 
   //let mut dancer: f::physics::World = f::physics::World::new();
   //let mut dancer: scene::Dancer = scene::Dancer::new();
-  let mut world: f::physics::World = f::physics::World::new();
+  let mut world: f::World = f::World::new();
 
 //  let mut dancer: scene::dancer = scene::dancer::new();
   let mut dancer: scene::Dancer;

@@ -2,7 +2,7 @@
 extern crate glium;
 use std::{fs, io};
 
-use nalgebra::Matrix4;
+//use nalgebra::Matrix4;
 
 use self::primitives::FMaterial;
 pub mod shader;

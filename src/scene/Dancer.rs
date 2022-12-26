@@ -1,22 +1,22 @@
-extern crate glium;
+//extern crate glium;
 use nalgebra::Matrix4;
 use rapier3d::prelude::*;
 use crate::glium::Surface;
 
 //use crate::f::FObject;
-//use crate::f::*;
+//use f::*;
 //use f::World;
 
 pub struct Dancer {
   pub balls: std::vec::Vec<RigidBodyHandle>,
-  pub obj_sphere: Option<FObject>,
+  pub obj_sphere: Option<f::FObject>,
   pub shader: None::<glium::Program>,
 }
 
 
 
 //impl Dancer for World{
-impl f::World for Dancer{
+impl World for Dancer{
 
 //  pub fn new() -> Self {
 

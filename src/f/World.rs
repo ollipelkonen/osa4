@@ -1,3 +1,5 @@
+pub mod World;
+
 extern crate glium;
 use nalgebra::Matrix4;
 use rapier3d::prelude::*;
