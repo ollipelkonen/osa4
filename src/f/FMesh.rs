@@ -1,3 +1,5 @@
+pub mod FMesh;
+
 extern crate glium;
 use nalgebra::Matrix4;
 

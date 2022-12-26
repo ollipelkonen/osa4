@@ -1,16 +1,16 @@
-//extern crate glium;
+pub mod Dancer;
+
 use nalgebra::Matrix4;
 use rapier3d::prelude::*;
 use crate::glium::Surface;
+use crate::f::FObject;
+use crate::f::FMesh;
 
-//use crate::f::FObject;
-//use f::*;
-//use f::World;
 
 pub struct Dancer {
   pub balls: std::vec::Vec<RigidBodyHandle>,
   pub obj_sphere: Option<f::FObject>,
-  pub shader: None::<glium::Program>,
+  pub shader: std::option::Option::None::<glium::Program>,
 }
 
 
@@ -60,7 +60,7 @@ impl World for Dancer{
       previous.unwrap()
     } )
     .collect();
-    self.obj_sphere = Some(f::FObject::load_gltf( "data/sphere.gltf", &display ));
+    self.obj_sphere = Some(f::load_gltf( "data/sphere.gltf", &display ));
 
     if let Some(obj) = &mut self.obj_sphere {
       obj.set_texture( "texture.jpg", display );

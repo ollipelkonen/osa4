@@ -1,3 +1,5 @@
+pub mod Vertex;
+
 #[derive(Copy, Clone, Debug)]
 pub struct Vertex {
   pub position: [f32; 3],

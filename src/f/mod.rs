@@ -1,21 +1,11 @@
 
 extern crate glium;
 use std::{fs, io};
+use crate::f::Vertex;
 
-//use nalgebra::Matrix4;
-
-use self::primitives::FMaterial;
-pub mod shader;
-pub mod sdf;
-pub mod primitives;
-pub mod physics;
-pub mod FObject;
-pub mod FMesh;
-
-
-
-
-
+//use crate::f::FMesh;
+//use f::FMesh;
+//use crate::f::Vertex;
 
 
 #[allow(dead_code)]

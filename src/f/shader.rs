@@ -1,3 +1,4 @@
+pub mod shader;
 use std::{fs};
 
 
