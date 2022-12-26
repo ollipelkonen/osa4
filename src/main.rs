@@ -2,12 +2,11 @@
 extern crate glium;
 extern crate nalgebra as nalgebra;
 extern crate gltf;
-//use crate::Dancer;
-use crate::Dancer;
+use f:*;
 
 
 //use std::fs;
-use std::ops::Mul;
+//use std::ops::Mul;
 //use ::image::ImageFormat::{Jpeg, Png};
 //use nalgebra::{Isometry3, vector, ArrayStorage, Const};
 use nalgebra::{Isometry3, vector};
@@ -15,11 +14,7 @@ use nalgebra::{Isometry3, vector};
 //use ::image::ImageFormat; //::ImageFormat::{Jpeg, Png};
 //use gltf::image_crate::ImageFormat::{Jpeg, Png};
 //use gltf::image::ImageFormat::Jpeg;
-use crate::scene::Dancer::Dancer;
 
-
-pub mod f;
-pub mod scene;
 
 extern crate serde_json;
 
@@ -73,7 +68,7 @@ fn main() {
   let mut world: f::World = f::World::new();
 
 //  let mut dancer: scene::dancer = scene::dancer::new();
-  let mut dancer: scene::Dancer::Dancer;
+  let mut dancer: scene::Dancer;
   dancer.init_balls(&display);
   //world.obj_sphere = obj_sphere;
   //let mut balls: Vec<RigidBodyHandle>{>::new();

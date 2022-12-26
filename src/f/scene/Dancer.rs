@@ -1,4 +1,4 @@
-pub mod Dancer;
+pub mod scene::Dancer;
 
 use nalgebra::Matrix4;
 use rapier3d::prelude::*;
