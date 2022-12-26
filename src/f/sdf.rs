@@ -4,7 +4,7 @@ extern crate glium;
 
 
 pub struct Sdf {
-  pub mesh: f::FMesh,
+  pub mesh: FMesh,
   pub shader: glium::Program,
 }
 

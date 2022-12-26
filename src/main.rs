@@ -16,11 +16,13 @@ use nalgebra::{Isometry3, vector, ArrayStorage, Const};
 
 
 pub mod f;
+pub mod scene;
 
 extern crate serde_json;
 
-use std::ffi::OsStr;
-use std::time::{Duration, Instant};
+//use std::ffi::OsStr;
+//use std::time::{Duration, Instant};
+use std::time::Instant;
 
 
 #[allow(dead_code)]
@@ -62,8 +64,13 @@ fn main() {
 //  std::process::exit(1);
 
 
+  //let mut dancer: f::physics::World = f::physics::World::new();
+  //let mut dancer: scene::Dancer = scene::Dancer::new();
   let mut world: f::physics::World = f::physics::World::new();
-  world.init_balls(&display);
+
+//  let mut dancer: scene::dancer = scene::dancer::new();
+  let mut dancer: scene::Dancer;
+  dancer.init_balls(&display);
   //world.obj_sphere = obj_sphere;
   //let mut balls: Vec<RigidBodyHandle>{>::new();
 
