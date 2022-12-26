@@ -1,3 +1,5 @@
+pub mod FEdge;
+
 #[derive(Debug)]
 pub struct FEdge
 {

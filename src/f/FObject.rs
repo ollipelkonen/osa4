@@ -1,11 +1,13 @@
 
+extern crate glium;
+use nalgebra::Matrix4;
 
 
 #[derive(Debug)]
 pub struct FObject {
   pub matrix: Matrix4<f32>,
   pub meshes: Vec<FMesh>,
-  pub materials: Vec<primitives::FMaterial>,
+  pub materials: Vec<FMaterial>,
   pub textures: Vec<glium::texture::SrgbTexture2d>,
 }
 
@@ -20,10 +22,10 @@ impl FObject {
   //  pub fn set_texture(&mut self, texture: glium::texture::SrgbTexture2d) {
     pub fn set_texture(&mut self, texture: &str, display: &glium::Display) {
   
-      if let Some(image) = f::load_image( texture, &display) {
+      if let Some(image) = load_image( texture, &display) {
         self.textures = vec![image];
         self.materials = vec![
-          primitives::FMaterial {
+          FMaterial {
             diffuse_texture: Some(0),
             normal_texture:  None,
             occlusion_texture:  None,
@@ -52,7 +54,7 @@ impl FObject {
       let imp = ImportData { doc, buffers, images };
   
       let textures: Vec<glium::texture::SrgbTexture2d> = imp.doc.textures().map( |im| {
-          f::load_image_from_source(im.source().source(), display)
+            load_image_from_source(im.source().source(), display)
         })
         .filter_map(|a| a)
         .collect();
@@ -81,7 +83,7 @@ impl FObject {
             _ => None
           };
           let metallic_roughness_texture = None;
-          primitives::FMaterial { diffuse_texture, normal_texture, occlusion_texture, metallic_roughness_texture }
+          FMaterial { diffuse_texture, normal_texture, occlusion_texture, metallic_roughness_texture }
         })
         .collect();
   

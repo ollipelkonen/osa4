@@ -1,5 +1,5 @@
-
-//use f::primitives;
+extern crate glium;
+use nalgebra::Matrix4;
 
 ////#[derive(Debug, Ord, PartialOrd, Eq, PartialEq, Clone, Copy)]
 #[derive(Debug)]
@@ -10,7 +10,7 @@ pub struct FMesh {
   pub material: Option<usize>,
   pub vertices: Option<Vec<Vertex>>,
   pub indices: Option<Vec<u32>>,
-  pub edges: Option<Vec<primitives::FEdge>>,
+  pub edges: Option<Vec<FEdge>>,
   pub bounds: Option<[Vertex; 2]>
 }
 
