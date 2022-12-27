@@ -1,4 +1,4 @@
-pub mod FObject;
+pub mod f;
 
 extern crate glium;
 use nalgebra::Matrix4;

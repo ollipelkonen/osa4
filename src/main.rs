@@ -2,7 +2,9 @@
 extern crate glium;
 extern crate nalgebra as nalgebra;
 extern crate gltf;
-use f:*;
+//use f::World;
+//use f::shader;
+//pub mod World;
 
 
 //use std::fs;
@@ -45,14 +47,13 @@ fn main() {
   let display = glium::Display::new(wb, cb, &event_loop).unwrap();
 
   println!("___ joku.glsl {:?}s -> ", now.elapsed().as_nanos() as f32/100000000.0);
-  let sdf = f::Sdf::create( &display, "joku.glsl" );
+  let sdf = Sdf::create( &display, "joku.glsl" );
   println!("___ scne.gltf  {:?}s -> ", now.elapsed().as_nanos() as f32/100000000.0);
-  let mut obj = f::load_gltf( "data/scene.gltf", &display );
+  let mut obj = f::FObject::load_gltf( "data/scene.gltf", &display );
   //obj.matrix = nalgebra::Matrix4::<f32>::new_rotation(axisangle)
   obj.matrix = Isometry3::rotation( vector![ -std::f32::consts::PI / 2.0, 0.0, 0.0] ).into();
   println!("___ shader  {:?}s -> ", now.elapsed().as_nanos() as f32/100000000.0);
   let shader = f::shader::create_shader_vf( &display, "test" );
-
  
   //println!("___ sphere.gltf  {:?}s -> ", now.elapsed().as_nanos() as f32/100000000.0);
   //TODO: center is in 0,1,0

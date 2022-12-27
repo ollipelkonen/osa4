@@ -1,4 +1,4 @@
-pub mod World;
+pub mod f::World;
 
 extern crate glium;
 use nalgebra::Matrix4;

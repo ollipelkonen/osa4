@@ -1,4 +1,4 @@
-pub mod sdf;
+//pub mod f;
 
 extern crate glium;
 use crate::f::FMesh::FMesh;
