@@ -5,6 +5,7 @@ use rapier3d::prelude::*;
 use rand::Rng;
 
 
+#[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 pub struct World {
     pub rigid_body_set: rapier3d::prelude::RigidBodySet,
     pub collider_set: ColliderSet,
@@ -40,22 +41,27 @@ pub struct World {
         ccd_solver: CCDSolver::new(),
         physics_hooks: (),
         event_handler: (),
-  
       }
+    }
+
+    pub fn create_ground(&mut self) {
       /* Create the ground. */
-      /*let collider = ColliderBuilder::cuboid(100.0, 0.1, 100.0).build();
-      w.collider_set.insert(collider);
+      let collider = ColliderBuilder::cuboid(100.0, 0.1, 100.0)
+        .translation(vector![0.0, -30.0, 0.0])
+        .build();
+      self.collider_set.insert(collider);
       /* Create the bounding ball. */
-      let mut rigid_body = RigidBodyBuilder::dynamic()
-              .translation(vector![0.0, 10.0, 0.0])
+      /*let mut rigid_body = RigidBodyBuilder::fixed()
+              .translation(vector![0.0, -20.0, 0.0])
               .build();
       let collider = ColliderBuilder::ball(0.5).restitution(0.7).build();
-      let ball_body_handle = w.rigid_body_set.insert(rigid_body);
-      w.collider_set.insert_with_parent(collider, ball_body_handle, &mut w.rigid_body_set);*/
+      let ball_body_handle = self.rigid_body_set.insert(rigid_body);
+      self.collider_set.insert_with_parent(collider, ball_body_handle, &mut self.rigid_body_set);*/
     }
   
     
   
+
   
     pub fn add_force<'c>(&mut self) {
       let mut rng = rand::thread_rng();
@@ -67,20 +73,21 @@ pub struct World {
         x.1.reset_forces(true);
         x.1.reset_torques(true);
 
-        x.1.add_force(vector![100.0, 1000.0, 10.0], true);
+        //x.1.add_force(vector![0.0, 2.5, 0.0], true);
         let v = vector![
-          rng.gen_range(0.0..1000.0) as Real,
-          rng.gen_range(0.0..1000.0) as Real,
-          rng.gen_range(0.0..1000.0) as Real
+          rng.gen_range(0.0..0.1) as Real,
+          rng.gen_range(0.0..0.1) as Real,
+          rng.gen_range(0.0..0.1) as Real
           ];
-        x.1.add_torque(vector![100.0, 0.0, 0.0], true);
-        x.1.add_force_at_point(vector![0.0, 1000.0, 0.0], point![1.0, 2.0, 3.0], true);
-
-        x.1.apply_impulse(vector![0.0, 1000.0, 0.0], true);
-        x.1.apply_torque_impulse(vector![100.0, 0.0, 0.0], true);
-        x.1.apply_impulse_at_point(vector![0.0, 1000.0, 0.0], point![1.0, 2.0, 3.0], true);
-
-        x.1.set_angvel( v, true );
+        x.1.add_torque(vector![1.0, 0.0, 0.0], true);
+        /*
+        x.1.add_force_at_point(vector![0.0, 1.0, 0.0], point![1.0, 2.0, 3.0], true);
+*/
+        //x.1.apply_impulse(vector![0.0, 0.5, 0.0], true);
+/*        x.1.apply_torque_impulse(vector![1.0, 0.0, 0.0], true);
+        x.1.apply_impulse_at_point(vector![0.0, 1.0, 0.0], point![1.0, 2.0, 3.0], true);
+*/
+        //x.1.set_angvel( v, true );
 
       }
       return;

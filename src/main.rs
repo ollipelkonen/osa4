@@ -10,10 +10,11 @@ use crate::scene::dancer::Dancer;
 pub mod scene;
 
 //use std::fs;
-use std::ops::Mul;
+//use std::ops::Mul;
 //use ::image::ImageFormat::{Jpeg, Png};
 //use nalgebra::{Isometry3, vector, ArrayStorage, Const};
-use nalgebra::{Isometry3, vector};
+use nalgebra::{Isometry3, vector, Vector3, Point3};
+use rapier3d::prelude::Isometry;
 
 //use ::image::ImageFormat; //::ImageFormat::{Jpeg, Png};
 //use gltf::image_crate::ImageFormat::{Jpeg, Png};
@@ -60,17 +61,11 @@ fn main() {
 //  std::process::exit(1);
 
 
-  //let mut dancer: f::physics::World = f::physics::World::new();
-  //let mut dancer: scene::Dancer = scene::Dancer::new();
-  //let mut world: f::World = f::World::new();
   let mut world: World = World::new();
   let mut dancer: Dancer = Dancer::new();
 
-//  let mut dancer: scene::dancer = scene::dancer::new();
-  //let mut dancer: crate::scene::Dancer::Dancer ;
   dancer.init_balls(&display, &mut world);
-  //world.obj_sphere = obj_sphere;
-  //let mut balls: Vec<RigidBodyHandle>{>::new();
+  world.create_ground();
 
 
   println!("___ display  {:?}s -> ", now.elapsed().as_nanos() as f32/100000000.0);
@@ -97,6 +92,34 @@ fn main() {
                 println!("____ add force");
                 world.add_force();
               },
+              glutin::event::VirtualKeyCode::Return => {
+                let i = 0;
+                if let Some(x) = world.rigid_body_set.iter_mut().nth(i) {
+                  let time = start.elapsed().as_nanos() as f32/1000000000.0f32;
+                  let cx = 16.0f32 * time.sin();
+                  let cy = 3.53f32 + 1.0f32 * time.cos();
+                  let cz = 12.0f32 * time.cos();
+                  let eye    = Point3::new(cx, cy, cz);
+                  let target = Point3::new(1.0, 0.0, 0.0);
+                  //let view   = Isometry3::look_at_rh(&eye, &target, &Vector3::y());
+                  //x.1.set_translation( nalgebra::Vector3::new(cx, cy, cz), true ); 
+                  //let m = nalgebra::Matrix3::new_rotation(Vector3::x() * 1.57, Point3::new(1.0, 2.0, 1.0));
+                  //m.append_scaling_mut(2.0);
+                  let cx = 13.0f32 * time.sin();
+                  let cy = 18.0f32 * time.cos();
+                  let m = (nalgebra::Matrix4::<f32>::look_at_rh(
+                    &nalgebra::Point3::new( 2.0+cx, 3.0, cy ),
+                    &nalgebra::Point3::new( 2.0, 3.0, 0.0 ),
+                    &nalgebra::Vector3::new( 0.0, 1.0, 0.0 )
+                  ));
+                  //x.1.set_position(nalgebra::Vector3::new(0.0,0.0,0.0), true);
+              
+                  //x.1.set_next_kinematic_position(Isometry::new(vector![1.0, 2.0, 3.0], vector![0.0, 0.4, 0.0]) );
+                  x.1.set_position(Isometry::new(vector![1.0, 2.0, 3.0], vector![0.0, 0.4, 0.0]), true);
+                  //assert_eq!(*rigid_body.position(), Isometry::new(vector![1.0, 2.0, 3.0], vector![0.0, 0.4, 0.0]));
+                }
+          
+              }
               _ => {}
             }
           }
@@ -206,6 +229,11 @@ fn main() {
         ).unwrap();
       });
     }*/
+    let i = 0;
+    if let Some(x) = world.rigid_body_set.iter_mut().nth(i) {
+      let cx = 3.0f32 * time.sin();
+      x.1.set_position(Isometry::new(vector![cx, 0.0, 0.0], vector![0.0, 0.0, 0.0]), true);
+    }
 
     target.finish().unwrap();
 
