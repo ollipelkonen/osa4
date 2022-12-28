@@ -1,7 +1,7 @@
-pub mod FMesh;
-
 extern crate glium;
 use nalgebra::Matrix4;
+use crate::f::Vertex::Vertex;
+use crate::f::FEdge::FEdge;
 
 ////#[derive(Debug, Ord, PartialOrd, Eq, PartialEq, Clone, Copy)]
 #[derive(Debug)]

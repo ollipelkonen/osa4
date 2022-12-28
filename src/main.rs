@@ -2,13 +2,14 @@
 extern crate glium;
 extern crate nalgebra as nalgebra;
 extern crate gltf;
-//use f::World;
-//use f::shader;
-//pub mod World;
 
+pub mod f;
+use crate::f::World::World;
+use crate::scene::Dancer::Dancer;
+pub mod scene;
 
 //use std::fs;
-//use std::ops::Mul;
+use std::ops::Mul;
 //use ::image::ImageFormat::{Jpeg, Png};
 //use nalgebra::{Isometry3, vector, ArrayStorage, Const};
 use nalgebra::{Isometry3, vector};
@@ -47,9 +48,9 @@ fn main() {
   let display = glium::Display::new(wb, cb, &event_loop).unwrap();
 
   println!("___ joku.glsl {:?}s -> ", now.elapsed().as_nanos() as f32/100000000.0);
-  let sdf = Sdf::create( &display, "joku.glsl" );
+  let sdf = f::Sdf::create( &display, "joku.glsl" );
   println!("___ scne.gltf  {:?}s -> ", now.elapsed().as_nanos() as f32/100000000.0);
-  let mut obj = f::FObject::load_gltf( "data/scene.gltf", &display );
+  let mut obj = f::FObject::FObject::load_gltf( "data/scene.gltf", &display );
   //obj.matrix = nalgebra::Matrix4::<f32>::new_rotation(axisangle)
   obj.matrix = Isometry3::rotation( vector![ -std::f32::consts::PI / 2.0, 0.0, 0.0] ).into();
   println!("___ shader  {:?}s -> ", now.elapsed().as_nanos() as f32/100000000.0);
@@ -66,11 +67,12 @@ fn main() {
   //let mut dancer: f::physics::World = f::physics::World::new();
   //let mut dancer: scene::Dancer = scene::Dancer::new();
   //let mut world: f::World = f::World::new();
-  let mut world: f::World = f::World::new();
+  let mut world: World = World::new();
+  let mut dancer: Dancer = Dancer::new();
 
 //  let mut dancer: scene::dancer = scene::dancer::new();
-  let mut dancer: scene::Dancer;
-  dancer.init_balls(&display);
+  //let mut dancer: crate::scene::Dancer::Dancer ;
+  dancer.init_balls(&display, &mut world);
   //world.obj_sphere = obj_sphere;
   //let mut balls: Vec<RigidBodyHandle>{>::new();
 
@@ -192,7 +194,7 @@ fn main() {
       &nalgebra::Vector3::new( 0.0, 0.0, 1.0 )
     )).into();*/
 
-    world.render_balls( &mut target, time, view_mat, perspective_mat );
+    dancer.render_balls( &mut world, &mut target, time, view_mat, perspective_mat );
 
     /*for n in 1..10 {
       let pos = &nalgebra::Vector3::new( 0.0, 0.0, n as f32 * -2.5 + 1.0 );

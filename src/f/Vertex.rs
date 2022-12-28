@@ -1,4 +1,3 @@
-pub mod f::Vertex;
 
 #[derive(Copy, Clone, Debug)]
 pub struct Vertex {

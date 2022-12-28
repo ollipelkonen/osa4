@@ -1,4 +1,3 @@
-pub mod FMaterial;
 
 #[derive(Debug)]
 pub struct FMaterial {

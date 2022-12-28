@@ -1,28 +1,36 @@
-//pub mod scene::Dancer;
 
 use nalgebra::Matrix4;
 use rapier3d::prelude::*;
 use crate::glium::Surface;
-use crate::f::FObject;
-use crate::f::FMesh;
+use crate::f::FObject::FObject;
+use crate::f::World::World;
+
+//use crate::f::FObject;
+//use crate::f::FMesh;
+//use crate::f::World;
 
 
 pub struct Dancer {
   pub balls: std::vec::Vec<RigidBodyHandle>,
-  pub obj_sphere: Option<f::FObject>,
-  pub shader: std::option::Option::None::<glium::Program>,
+  pub obj_sphere: Option<FObject>,
+  pub shader: std::option::Option::<glium::Program>,
 }
 
 
 
-//impl Dancer for World{
-impl World for Dancer{
+impl Dancer{
 
-//  pub fn new() -> Self {
+  pub fn new() -> Self {
+    Self{
+      balls: Vec::new(),
+      obj_sphere: Option::None::<crate::f::FObject::FObject>,
+      shader: Option::None::<glium::Program>
+    }
+  }
 
 
 
-  fn create_ball(&mut self, pos: nalgebra::Vector3<f32>, radius: Real, previous: Option<RigidBodyHandle>, dynamic: bool) -> RigidBodyHandle
+  pub fn create_ball(&mut self, pos: nalgebra::Vector3<f32>, radius: Real, previous: Option<RigidBodyHandle>, world: &mut World, dynamic: bool) -> RigidBodyHandle
   {
 
     let rigid_body = match dynamic {
@@ -32,8 +40,8 @@ impl World for Dancer{
         .build();
 
     let collider = ColliderBuilder::ball(radius).restitution(0.7).mass(10.0).build();
-    let ball_body_handle = self.rigid_body_set.insert(rigid_body);
-    self.collider_set.insert_with_parent(collider, ball_body_handle, &mut self.rigid_body_set);
+    let ball_body_handle = world.rigid_body_set.insert(rigid_body);
+    world.collider_set.insert_with_parent(collider, ball_body_handle, &mut world.rigid_body_set);
 
     //rigid_body.
     if let Some(prev) = previous {
@@ -44,23 +52,23 @@ impl World for Dancer{
         .local_anchor2(k2);
         //.local_anchor1(point![0.0, 0.0, -3.0])
         //.local_anchor2(point![0.0, 0.0, 1.0]);
-      self.impulse_joint_set.insert(ball_body_handle, prev, joint, true);
+      world.impulse_joint_set.insert(ball_body_handle, prev, joint, true);
     }
     ball_body_handle
   }
 
 
-  fn init_balls(&mut self, display: &glium::Display) {
-    self.shader = Some(f::shader::create_shader_vf( &display, "test" ));
+  pub fn init_balls(&mut self, display: &glium::Display, world: &mut World) {
+    self.shader = Some(crate::f::shader::create_shader_vf( &display, "test" ));
 
     let mut previous: Option<RigidBodyHandle> = None;
     self.balls = (1..10).map( |n| {
       let pos = nalgebra::Vector3::new( 0.0, n as f32 * 2.5 - 1.0, 0.0 );
-      previous = Some(self.create_ball( pos, 0.8, previous, n>1 ));
+      previous = Some(self.create_ball( pos, 0.8, previous, world, n>1 ));
       previous.unwrap()
     } )
     .collect();
-    self.obj_sphere = Some(f::load_gltf( "data/sphere.gltf", &display ));
+    self.obj_sphere = Some(crate::f::FObject::FObject::load_gltf( "data/sphere.gltf", &display ));
 
     if let Some(obj) = &mut self.obj_sphere {
       obj.set_texture( "texture.jpg", display );
@@ -69,7 +77,7 @@ impl World for Dancer{
   }
   
 
-  fn render_balls<'b>(&mut self, target: &mut glium::Frame, time: f32, view_mat: [[f32;4];4], perspective_mat: [[f32;4];4]) {
+  pub fn render_balls<'b>(&mut self, world: &mut World, target: &mut glium::Frame, time: f32, view_mat: [[f32;4];4], perspective_mat: [[f32;4];4]) {
     let light = [1.4, 0.4, 0.7f32];
     let draw_params = glium::DrawParameters {
       depth: glium::Depth {
@@ -82,19 +90,19 @@ impl World for Dancer{
 
     let gravity = vector![0.0, -9.81, 0.0];
 
-    self.physics_pipeline.step(
+    world.physics_pipeline.step(
       &gravity,
-      &self.integration_parameters,
-      &mut self.island_manager,
-      &mut self.broad_phase,
-      &mut self.narrow_phase,
-      &mut self.rigid_body_set,
-      &mut self.collider_set,
-      &mut self.impulse_joint_set,
-      &mut self.multibody_joint_set,
-      &mut self.ccd_solver,
-      &self.physics_hooks,
-      &self.event_handler,
+      &world.integration_parameters,
+      &mut world.island_manager,
+      &mut world.broad_phase,
+      &mut world.narrow_phase,
+      &mut world.rigid_body_set,
+      &mut world.collider_set,
+      &mut world.impulse_joint_set,
+      &mut world.multibody_joint_set,
+      &mut world.ccd_solver,
+      &world.physics_hooks,
+      &world.event_handler,
     );
 
 
@@ -102,7 +110,7 @@ impl World for Dancer{
       //println!("EFKFE");
       if let Some(shader) = &self.shader {
         self.balls.iter().for_each( |b| {
-          let ball = &self.rigid_body_set[*b];
+          let ball = &world.rigid_body_set[*b];
 
           let pos = ball.translation();
           for mesh in &obj.meshes {

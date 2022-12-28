@@ -1,9 +1,8 @@
-//pub mod f;
 
 extern crate glium;
 use crate::f::FMesh::FMesh;
 use crate::f::Vertex::Vertex;
-use crate::f::shader::*;
+use crate::f::shader::load_shader;
 
 
 pub struct Sdf {
@@ -25,8 +24,8 @@ pub fn create(display: &glium::Display, filename: &str) -> Sdf {
   let ibuffer = glium::index::IndexBuffer::new(display, glium::index::PrimitiveType::TrianglesList, &indices).unwrap();
   let mesh = FMesh{ vbuffer, ibuffer, material: None, vertices: None, indices: None, edges: None, bounds: None, matrix: nalgebra::Matrix4::<f32>::identity() };
 
-  let vs = f::load_shader( "sdf-vert.glsl" );
-  let fs = f::load_shader( &filename );
+  let vs = load_shader( "sdf-vert.glsl" );
+  let fs = load_shader( &filename );
   let shader = glium::Program::from_source(display, &vs, &fs, None).unwrap();
 
   Sdf {

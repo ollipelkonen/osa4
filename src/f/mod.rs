@@ -1,16 +1,16 @@
-pub mod f;
+//pub mod f;
+
 extern crate glium;
 use std::{fs, io};
-use crate::f::Vertex;
-use crate::f::World;
+
 pub mod World;
 pub mod shader;
-use crate::f::Sdf;
 pub mod Sdf;
-
-//use crate::f::FMesh;
-//use f::FMesh;
-//use crate::f::Vertex;
+pub mod FMaterial;
+pub mod Vertex;
+pub mod FObject;
+pub mod FMesh;
+pub mod FEdge;
 
 
 #[allow(dead_code)]
@@ -64,16 +64,16 @@ struct ImportData {
 
 
 //#[allow(dead_code)]
-fn mesh_from_gltf( g_primitive: &gltf::Primitive<'_>, imp: &ImportData, display: &glium::Display ) -> FMesh
+fn mesh_from_gltf( g_primitive: &gltf::Primitive<'_>, imp: &ImportData, display: &glium::Display ) -> crate::f::FMesh::FMesh
 {
   let buffers = &imp.buffers;
   let reader = g_primitive.reader(|buffer| Some(&buffers[buffer.index()]));
-  let mut vertices: Vec<Vertex> = reader
+  let mut vertices: Vec<Vertex::Vertex> = reader
         .read_positions()
         .unwrap_or_else(||
           panic!("primitives must have the POSITION attribute (mesh: , primitive: )")
         ).map(|position| {
-            Vertex::new( position, [0.0,0.0,0.0], [0.0,0.0])
+          Vertex::Vertex::new( position, [0.0,0.0,0.0], [0.0,0.0])
         }).collect();
 
   if let Some(normals) = reader.read_normals() {
@@ -107,23 +107,23 @@ fn mesh_from_gltf( g_primitive: &gltf::Primitive<'_>, imp: &ImportData, display:
     });
 
 
-  let bounds: [Vertex; 2] = vertices.iter().fold( [Vertex::max(), Vertex::min()], |st, elem| {
+  let bounds: [Vertex::Vertex; 2] = vertices.iter().fold( [Vertex::Vertex::max(), Vertex::Vertex::min()], |st, elem| {
       [
-        Vertex {
+        Vertex::Vertex {
           position: [
             st[0].position[0].min( elem.position[0] ),
             st[0].position[1].min( elem.position[1] ),
             st[0].position[2].min( elem.position[2] )
           ],
-            ..Vertex::default()
+            ..Vertex::Vertex::default()
         },
-        Vertex {
+        Vertex::Vertex {
           position: [
             st[1].position[0].max( elem.position[0] ),
             st[1].position[1].max( elem.position[1] ),
             st[1].position[2].max( elem.position[2] )
           ],
-          ..Vertex::default()
+          ..Vertex::Vertex::default()
         }
       ]
   } );
@@ -131,10 +131,8 @@ fn mesh_from_gltf( g_primitive: &gltf::Primitive<'_>, imp: &ImportData, display:
   let vbuffer = glium::vertex::VertexBuffer::new(display, &vertices).unwrap();
   let ibuffer = glium::index::IndexBuffer::new(display, glium::index::PrimitiveType::TrianglesList, &(indices).as_ref().unwrap().as_slice()).unwrap();
   let material = g_primitive.material().index();
-  FMesh{ vbuffer: vbuffer, ibuffer: ibuffer, material, vertices: Some(vertices), indices: Some(indices.unwrap()),
+  crate::f::FMesh::FMesh{ vbuffer: vbuffer, ibuffer: ibuffer, material, vertices: Some(vertices), indices: Some(indices.unwrap()),
     bounds: Some(bounds), edges: None, matrix: nalgebra::Matrix4::<f32>::identity() }
 }
-
-
 
 
