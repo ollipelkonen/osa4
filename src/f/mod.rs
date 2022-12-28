@@ -3,14 +3,14 @@
 extern crate glium;
 use std::{fs, io};
 
-pub mod World;
+pub mod world;
 pub mod shader;
 pub mod Sdf;
 pub mod FMaterial;
-pub mod Vertex;
-pub mod FObject;
+pub mod vertex;
+pub mod fobject;
 pub mod FMesh;
-pub mod FEdge;
+pub mod fedge;
 
 
 #[allow(dead_code)]
@@ -68,12 +68,12 @@ fn mesh_from_gltf( g_primitive: &gltf::Primitive<'_>, imp: &ImportData, display:
 {
   let buffers = &imp.buffers;
   let reader = g_primitive.reader(|buffer| Some(&buffers[buffer.index()]));
-  let mut vertices: Vec<Vertex::Vertex> = reader
+  let mut vertices: Vec<vertex::Vertex> = reader
         .read_positions()
         .unwrap_or_else(||
           panic!("primitives must have the POSITION attribute (mesh: , primitive: )")
         ).map(|position| {
-          Vertex::Vertex::new( position, [0.0,0.0,0.0], [0.0,0.0])
+          vertex::Vertex::new( position, [0.0,0.0,0.0], [0.0,0.0])
         }).collect();
 
   if let Some(normals) = reader.read_normals() {
@@ -107,23 +107,23 @@ fn mesh_from_gltf( g_primitive: &gltf::Primitive<'_>, imp: &ImportData, display:
     });
 
 
-  let bounds: [Vertex::Vertex; 2] = vertices.iter().fold( [Vertex::Vertex::max(), Vertex::Vertex::min()], |st, elem| {
+  let bounds: [vertex::Vertex; 2] = vertices.iter().fold( [vertex::Vertex::max(), vertex::Vertex::min()], |st, elem| {
       [
-        Vertex::Vertex {
+        vertex::Vertex {
           position: [
             st[0].position[0].min( elem.position[0] ),
             st[0].position[1].min( elem.position[1] ),
             st[0].position[2].min( elem.position[2] )
           ],
-            ..Vertex::Vertex::default()
+            ..vertex::Vertex::default()
         },
-        Vertex::Vertex {
+        vertex::Vertex {
           position: [
             st[1].position[0].max( elem.position[0] ),
             st[1].position[1].max( elem.position[1] ),
             st[1].position[2].max( elem.position[2] )
           ],
-          ..Vertex::Vertex::default()
+          ..vertex::Vertex::default()
         }
       ]
   } );

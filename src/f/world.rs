@@ -59,7 +59,7 @@ pub struct World {
   
     pub fn add_force<'c>(&mut self) {
       for body in self.rigid_body_set.iter_mut() {
-        let m:Vector<f32> = body.1.translation().normalize() * 1000.0;
+        let _m:Vector<f32> = body.1.translation().normalize() * 1000.0;
         //body.1.add_force(vector![0.0, 1000.0, 0.0], true);
         //body.1.add_force( -m, true);
         //body.1.set_linvel(-m, true);

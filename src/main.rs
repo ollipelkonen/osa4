@@ -4,8 +4,8 @@ extern crate nalgebra as nalgebra;
 extern crate gltf;
 
 pub mod f;
-use crate::f::World::World;
-use crate::scene::dancer::dancer;
+use crate::f::world::World;
+use crate::scene::dancer::Dancer;
 pub mod scene;
 
 //use std::fs;
@@ -50,7 +50,7 @@ fn main() {
   println!("___ joku.glsl {:?}s -> ", now.elapsed().as_nanos() as f32/100000000.0);
   let sdf = f::Sdf::create( &display, "joku.glsl" );
   println!("___ scne.gltf  {:?}s -> ", now.elapsed().as_nanos() as f32/100000000.0);
-  let mut obj = f::FObject::FObject::load_gltf( "data/scene.gltf", &display );
+  let mut obj = f::fobject::FObject::load_gltf( "data/scene.gltf", &display );
   //obj.matrix = nalgebra::Matrix4::<f32>::new_rotation(axisangle)
   obj.matrix = Isometry3::rotation( vector![ -std::f32::consts::PI / 2.0, 0.0, 0.0] ).into();
   println!("___ shader  {:?}s -> ", now.elapsed().as_nanos() as f32/100000000.0);
@@ -68,7 +68,7 @@ fn main() {
   //let mut dancer: scene::Dancer = scene::Dancer::new();
   //let mut world: f::World = f::World::new();
   let mut world: World = World::new();
-  let mut dancer: dancer = dancer::new();
+  let mut dancer: Dancer = Dancer::new();
 
 //  let mut dancer: scene::dancer = scene::dancer::new();
   //let mut dancer: crate::scene::Dancer::Dancer ;
@@ -144,7 +144,7 @@ fn main() {
 
     let light = [1.4, 0.4, 0.7f32];
 
-    let model_mat: [[f32;4];4] = nalgebra::Matrix4::<f32>::identity().into();
+    let _model_mat: [[f32;4];4] = nalgebra::Matrix4::<f32>::identity().into();
 
     let perspective_mat: [[f32;4];4] = {
       let (width, height) = target.get_dimensions();

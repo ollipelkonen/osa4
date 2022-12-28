@@ -2,15 +2,15 @@
 use nalgebra::Matrix4;
 use rapier3d::prelude::*;
 use crate::glium::Surface;
-use crate::f::FObject::FObject;
-use crate::f::World::World;
+use crate::f::fobject::FObject;
+use crate::f::world::World;
 
 //use crate::f::FObject;
 //use crate::f::FMesh;
 //use crate::f::World;
 
 
-pub struct dancer {
+pub struct Dancer {
   pub balls: std::vec::Vec<RigidBodyHandle>,
   pub obj_sphere: Option<FObject>,
   pub shader: std::option::Option::<glium::Program>,
@@ -18,12 +18,12 @@ pub struct dancer {
 
 
 
-impl dancer{
+impl Dancer{
 
   pub fn new() -> Self {
     Self{
       balls: Vec::new(),
-      obj_sphere: Option::None::<crate::f::FObject::FObject>,
+      obj_sphere: Option::None::<crate::f::fobject::FObject>,
       shader: Option::None::<glium::Program>
     }
   }
@@ -68,7 +68,7 @@ impl dancer{
       previous.unwrap()
     } )
     .collect();
-    self.obj_sphere = Some(crate::f::FObject::FObject::load_gltf( "data/sphere.gltf", &display ));
+    self.obj_sphere = Some(crate::f::fobject::FObject::load_gltf( "data/sphere.gltf", &display ));
 
     if let Some(obj) = &mut self.obj_sphere {
       obj.set_texture( "texture.jpg", display );
@@ -77,7 +77,7 @@ impl dancer{
   }
   
 
-  pub fn render_balls<'b>(&mut self, world: &mut World, target: &mut glium::Frame, time: f32, view_mat: [[f32;4];4], perspective_mat: [[f32;4];4]) {
+  pub fn render_balls<'b>(&mut self, world: &mut World, target: &mut glium::Frame, _time: f32, view_mat: [[f32;4];4], perspective_mat: [[f32;4];4]) {
     let light = [1.4, 0.4, 0.7f32];
     let draw_params = glium::DrawParameters {
       depth: glium::Depth {
