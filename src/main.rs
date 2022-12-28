@@ -30,7 +30,6 @@ fn print_type_of<T>(_: &T, text: &str) {
 
 
 
-
 fn main() {
   //std::process::exit(1);
 
@@ -168,7 +167,8 @@ fn main() {
         }, &draw_params_sdf
       ).unwrap();
 
-    obj.meshes.iter().for_each( |mesh| {
+    //pää
+    /*obj.meshes.iter().for_each( |mesh| {
       //TODO: is this correct way?
       let model_matrix: [[f32;4];4] = mesh.matrix.mul( obj.matrix ).into();
       target.draw(&mesh.vbuffer, &mesh.ibuffer, &shader,
@@ -180,7 +180,7 @@ fn main() {
                     normal_tex: &obj.textures[obj.materials[mesh.material.unwrap()].normal_texture.unwrap()]
         }, &draw_params
       ).unwrap();
-    });
+    });*/
 
 
     /*let cx = 3.0f32 * time.sin();

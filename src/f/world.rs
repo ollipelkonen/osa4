@@ -60,15 +60,41 @@ pub struct World {
     pub fn add_force<'c>(&mut self) {
       let mut rng = rand::thread_rng();
 
+      //let i = rng.gen_range(0..self.rigid_body_set.len());
+      let i = 0;
+      if let Some(x) = self.rigid_body_set.iter_mut().nth(i) {
+
+        x.1.reset_forces(true);
+        x.1.reset_torques(true);
+
+        x.1.add_force(vector![100.0, 1000.0, 10.0], true);
+        let v = vector![
+          rng.gen_range(0.0..1000.0) as Real,
+          rng.gen_range(0.0..1000.0) as Real,
+          rng.gen_range(0.0..1000.0) as Real
+          ];
+        x.1.add_torque(vector![100.0, 0.0, 0.0], true);
+        x.1.add_force_at_point(vector![0.0, 1000.0, 0.0], point![1.0, 2.0, 3.0], true);
+
+        x.1.apply_impulse(vector![0.0, 1000.0, 0.0], true);
+        x.1.apply_torque_impulse(vector![100.0, 0.0, 0.0], true);
+        x.1.apply_impulse_at_point(vector![0.0, 1000.0, 0.0], point![1.0, 2.0, 3.0], true);
+
+        x.1.set_angvel( v, true );
+
+      }
+      return;
+      
+
       for body in self.rigid_body_set.iter_mut() {
         //body.1.add_force(vector![0.0, 1000.0, 0.0], true);
         /*let m:Vector<f32> = body.1.translation().normalize() * 1000.0;
         body.1.add_force( -m, true);*/
         //body.1.set_linvel(-m, true);
         //body.1.set_linvel(vector![0.2, 0.0, 0.0], true);
-        let v = vector![rng.gen_range(0.0..1.0) as Real,
-          rng.gen_range(0.0..1.0) as Real,
-          rng.gen_range(0.0..1.0) as Real
+        let v = vector![rng.gen_range(-1.0..1.0) as Real,
+          rng.gen_range(-1.0..1.0) as Real,
+          rng.gen_range(-1.0..1.0) as Real
           ];
         body.1.set_angvel( v, true );
         //break;
