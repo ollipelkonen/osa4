@@ -2,7 +2,7 @@
 extern crate glium;
 //use nalgebra::Matrix4;
 use rapier3d::prelude::*;
-//use crate::glium::Surface;
+use rand::Rng;
 
 
 pub struct World {
@@ -58,12 +58,19 @@ pub struct World {
   
   
     pub fn add_force<'c>(&mut self) {
+      let mut rng = rand::thread_rng();
+
       for body in self.rigid_body_set.iter_mut() {
-        let _m:Vector<f32> = body.1.translation().normalize() * 1000.0;
         //body.1.add_force(vector![0.0, 1000.0, 0.0], true);
-        //body.1.add_force( -m, true);
+        /*let m:Vector<f32> = body.1.translation().normalize() * 1000.0;
+        body.1.add_force( -m, true);*/
         //body.1.set_linvel(-m, true);
-        body.1.set_linvel(vector![1.0, 0.0, 0.0], true);
+        //body.1.set_linvel(vector![0.2, 0.0, 0.0], true);
+        let v = vector![rng.gen_range(0.0..1.0) as Real,
+          rng.gen_range(0.0..1.0) as Real,
+          rng.gen_range(0.0..1.0) as Real
+          ];
+        body.1.set_angvel( v, true );
         //break;
       }
     }

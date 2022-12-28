@@ -36,23 +36,42 @@ impl Dancer{
     let rigid_body = match dynamic {
       true => RigidBodyBuilder::dynamic(),
       false => RigidBodyBuilder::kinematic_position_based()
-      }.translation( vector![pos.x, pos.y, pos.z] )
-        .build();
+    }.translation( pos )
+      .lock_translations()
+      .angular_damping(0.01)
+      .linear_damping(0.01)
+      //.lock_rotations()
+      //.enabled_rotations(false, true, false)
+      .ccd_enabled(true) 
+      .build();
 
-    let collider = ColliderBuilder::ball(radius).restitution(0.7).mass(10.0).build();
+    let collider = ColliderBuilder::ball(radius).restitution(0.1).mass(10000.0).translation(pos).build();
     let ball_body_handle = world.rigid_body_set.insert(rigid_body);
     world.collider_set.insert_with_parent(collider, ball_body_handle, &mut world.rigid_body_set);
 
     //rigid_body.
     if let Some(prev) = previous {
-      let k1 = point![pos.x, pos.y, pos.z];
-      let k2 = point![pos.x, pos.y-2.5, pos.z];
+      //let k1 = point![radius/2.0, radius/2.0, radius/2.0];
+      //let k2 = point![radius/2.0, radius/2.0, radius/2.0];
+      let (k1,k2) = (
+        point![0.0, -radius / 2.0, 0.0],
+        point![0.0, radius / 2.0, 0.0]
+      );
       let joint = SphericalJointBuilder::new()
         .local_anchor1(k1)
-        .local_anchor2(k2);
+        .local_anchor2(k2)
+        /*.limits(JointAxis::X, [-1.0, 1.0])
+        .limits(JointAxis::Y, [-1.0, 1.0])
+        .limits(JointAxis::Z, [-1.0, 1.0])*/;
+      let joint1 = GenericJointBuilder::new(JointAxesMask::empty())
+        .limits(JointAxis::X, [-3.0, 3.0])
+        .limits(JointAxis::Y, [0.0, 3.0])
+        .limits(JointAxis::Z, [0.0, 3.0])
+        .coupled_axes(JointAxesMask::Y | JointAxesMask::Z);
+
         //.local_anchor1(point![0.0, 0.0, -3.0])
         //.local_anchor2(point![0.0, 0.0, 1.0]);
-      world.impulse_joint_set.insert(ball_body_handle, prev, joint, true);
+      world.impulse_joint_set.insert(ball_body_handle, prev, joint1, true);
     }
     ball_body_handle
   }
@@ -61,13 +80,25 @@ impl Dancer{
   pub fn init_balls(&mut self, display: &glium::Display, world: &mut World) {
     self.shader = Some(crate::f::shader::create_shader_vf( &display, "test" ));
 
-    let mut previous: Option<RigidBodyHandle> = None;
-    self.balls = (1..10).map( |n| {
-      let pos = nalgebra::Vector3::new( 0.0, n as f32 * 2.5 - 1.0, 0.0 );
-      previous = Some(self.create_ball( pos, 0.8, previous, world, n>1 ));
-      previous.unwrap()
-    } )
-    .collect();
+    for m in 1..10 {
+      let mut previous: Option<RigidBodyHandle> = None;
+      for n in 1..10 {
+        let dist = 5.0 + n as f64 / 2.0;
+        let (x, z) = (
+          (m as f64 / 9.0 * std::f64::consts::PI * 2.0).sin() * dist,
+          (m as f64 / 9.0 * std::f64::consts::PI * 2.0).cos() * dist
+        );
+        let pos = nalgebra::Vector3::new( x as f32, n as f32 * -2.5 + 2.2, z as f32 );
+        previous = Some(self.create_ball( pos, 0.2, previous, world, n>1 ));
+        self.balls.push( previous.unwrap() );
+      }
+    }
+    for m in 0..9 {
+      for n in 0..9 {
+        println!("{:?}", self.balls[m*9+n]);
+      }
+    }
+
     self.obj_sphere = Some(crate::f::fobject::FObject::load_gltf( "data/sphere.gltf", &display ));
 
     if let Some(obj) = &mut self.obj_sphere {
