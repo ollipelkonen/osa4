@@ -63,7 +63,7 @@ pub struct World {
         //body.1.add_force(vector![0.0, 1000.0, 0.0], true);
         //body.1.add_force( -m, true);
         //body.1.set_linvel(-m, true);
-        body.1.set_linvel(vector![0.0, 1000.0, 0.0], true);
+        body.1.set_linvel(vector![1.0, 0.0, 0.0], true);
         //break;
       }
     }

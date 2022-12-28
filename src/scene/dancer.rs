@@ -10,7 +10,7 @@ use crate::f::World::World;
 //use crate::f::World;
 
 
-pub struct Dancer {
+pub struct dancer {
   pub balls: std::vec::Vec<RigidBodyHandle>,
   pub obj_sphere: Option<FObject>,
   pub shader: std::option::Option::<glium::Program>,
@@ -18,7 +18,7 @@ pub struct Dancer {
 
 
 
-impl Dancer{
+impl dancer{
 
   pub fn new() -> Self {
     Self{

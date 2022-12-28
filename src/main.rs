@@ -5,7 +5,7 @@ extern crate gltf;
 
 pub mod f;
 use crate::f::World::World;
-use crate::scene::Dancer::Dancer;
+use crate::scene::dancer::dancer;
 pub mod scene;
 
 //use std::fs;
@@ -68,7 +68,7 @@ fn main() {
   //let mut dancer: scene::Dancer = scene::Dancer::new();
   //let mut world: f::World = f::World::new();
   let mut world: World = World::new();
-  let mut dancer: Dancer = Dancer::new();
+  let mut dancer: dancer = dancer::new();
 
 //  let mut dancer: scene::dancer = scene::dancer::new();
   //let mut dancer: crate::scene::Dancer::Dancer ;

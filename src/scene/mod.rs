@@ -1,1 +1,1 @@
-pub mod Dancer;
+pub mod dancer;
