@@ -1,8 +1,8 @@
 extern crate glium;
 use nalgebra::Matrix4;
-use crate::f::FMesh::FMesh;
+use crate::f::fmesh::FMesh;
 use crate::f::*;
-use crate::f::FMaterial::FMaterial;
+use crate::f::fmaterial::FMaterial;
 
 
 #[derive(Debug)]

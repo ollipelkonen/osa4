@@ -2,6 +2,7 @@
 extern crate glium;
 extern crate nalgebra as nalgebra;
 extern crate gltf;
+extern crate serde_json;
 
 pub mod f;
 use crate::f::world::World;
@@ -17,10 +18,6 @@ use nalgebra::{Isometry3, vector};
 //use ::image::ImageFormat; //::ImageFormat::{Jpeg, Png};
 //use gltf::image_crate::ImageFormat::{Jpeg, Png};
 //use gltf::image::ImageFormat::Jpeg;
-
-
-extern crate serde_json;
-
 //use std::ffi::OsStr;
 //use std::time::{Duration, Instant};
 use std::time::Instant;
@@ -38,7 +35,7 @@ fn main() {
   //std::process::exit(1);
 
   #[allow(unused_imports)]
-  let mut now = Instant::now();
+  let now = Instant::now();
   let start = Instant::now();
   use glium::{glutin, Surface};
 
@@ -48,7 +45,7 @@ fn main() {
   let display = glium::Display::new(wb, cb, &event_loop).unwrap();
 
   println!("___ joku.glsl {:?}s -> ", now.elapsed().as_nanos() as f32/100000000.0);
-  let sdf = f::Sdf::create( &display, "joku.glsl" );
+  let sdf = f::sdf::create( &display, "joku.glsl" );
   println!("___ scne.gltf  {:?}s -> ", now.elapsed().as_nanos() as f32/100000000.0);
   let mut obj = f::fobject::FObject::load_gltf( "data/scene.gltf", &display );
   //obj.matrix = nalgebra::Matrix4::<f32>::new_rotation(axisangle)

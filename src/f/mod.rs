@@ -5,11 +5,11 @@ use std::{fs, io};
 
 pub mod world;
 pub mod shader;
-pub mod Sdf;
-pub mod FMaterial;
+pub mod sdf;
+pub mod fmaterial;
 pub mod vertex;
 pub mod fobject;
-pub mod FMesh;
+pub mod fmesh;
 pub mod fedge;
 
 
@@ -64,7 +64,7 @@ struct ImportData {
 
 
 //#[allow(dead_code)]
-fn mesh_from_gltf( g_primitive: &gltf::Primitive<'_>, imp: &ImportData, display: &glium::Display ) -> crate::f::FMesh::FMesh
+fn mesh_from_gltf( g_primitive: &gltf::Primitive<'_>, imp: &ImportData, display: &glium::Display ) -> crate::f::fmesh::FMesh
 {
   let buffers = &imp.buffers;
   let reader = g_primitive.reader(|buffer| Some(&buffers[buffer.index()]));
@@ -131,7 +131,7 @@ fn mesh_from_gltf( g_primitive: &gltf::Primitive<'_>, imp: &ImportData, display:
   let vbuffer = glium::vertex::VertexBuffer::new(display, &vertices).unwrap();
   let ibuffer = glium::index::IndexBuffer::new(display, glium::index::PrimitiveType::TrianglesList, &(indices).as_ref().unwrap().as_slice()).unwrap();
   let material = g_primitive.material().index();
-  crate::f::FMesh::FMesh{ vbuffer: vbuffer, ibuffer: ibuffer, material, vertices: Some(vertices), indices: Some(indices.unwrap()),
+  crate::f::fmesh::FMesh{ vbuffer: vbuffer, ibuffer: ibuffer, material, vertices: Some(vertices), indices: Some(indices.unwrap()),
     bounds: Some(bounds), edges: None, matrix: nalgebra::Matrix4::<f32>::identity() }
 }
 

@@ -1,6 +1,6 @@
 
 extern crate glium;
-use crate::f::FMesh::FMesh;
+use crate::f::fmesh::FMesh;
 use crate::f::vertex::Vertex;
 use crate::f::shader::load_shader;
 
