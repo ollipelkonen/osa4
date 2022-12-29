@@ -66,6 +66,20 @@ pub struct World {
     pub fn add_force<'c>(&mut self) {
       let mut rng = rand::thread_rng();
 
+
+      /*
+      for handle in &self.collider_set {
+        self.collider_set
+            .remove(*handle, &mut physics.islands, &mut physics.bodies, true);
+      }
+      */
+
+      /*let first: Option<(RigidBodyHandle, &RigidBody)> = self.rigid_body_set.iter().find( |a| true );
+      println!("first: V{:?}", first);
+      if let Some(deletable) = first {
+        self.rigid_body_set.remove( deletable.0, &mut self.island_manager, &mut self.collider_set, &mut self.impulse_joint_set, &mut self.multibody_joint_set, true);
+      }*/
+
       //let i = rng.gen_range(0..self.rigid_body_set.len());
       let i = 0;
       if let Some(x) = self.rigid_body_set.iter_mut().nth(i) {
@@ -79,14 +93,14 @@ pub struct World {
           rng.gen_range(0.0..0.1) as Real,
           rng.gen_range(0.0..0.1) as Real
           ];
-        x.1.add_torque(vector![1.0, 0.0, 0.0], true);
+        //x.1.add_torque(vector![0.01, 0.0, 0.0], true);
         /*
         x.1.add_force_at_point(vector![0.0, 1.0, 0.0], point![1.0, 2.0, 3.0], true);
 */
         //x.1.apply_impulse(vector![0.0, 0.5, 0.0], true);
-/*        x.1.apply_torque_impulse(vector![1.0, 0.0, 0.0], true);
+        x.1.apply_torque_impulse(vector![1.0, 0.0, 0.0], true);
         x.1.apply_impulse_at_point(vector![0.0, 1.0, 0.0], point![1.0, 2.0, 3.0], true);
-*/
+
         //x.1.set_angvel( v, true );
 
       }

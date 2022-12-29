@@ -45,7 +45,7 @@ impl Dancer{
       .ccd_enabled(true) 
       .build();
 
-    println!("{:?}",rigid_body);
+    //println!("{:?}",rigid_body);
     let ball_body_handle = world.rigid_body_set.insert(rigid_body);
 
     let collider = ColliderBuilder::ball(radius);//.restitution(0.1).mass(0.1).build();
@@ -54,17 +54,16 @@ impl Dancer{
     //rigid_body.
     if let Some(prev) = previous {
       let joint = SphericalJointBuilder::new()
-        .local_anchor2( point![previous_pos.x, previous_pos.y, previous_pos.z] )
-        .contacts_enabled(false);
+        .local_anchor2( point![previous_pos.x, previous_pos.y, previous_pos.z] );
+        //.contacts_enabled(false)
         /*.limits(JointAxis::X, [-1.0, 1.0])
         .limits(JointAxis::Y, [-1.0, 1.0])
         .limits(JointAxis::Z, [-1.0, 1.0]);*/
-      let joint1 = GenericJointBuilder::new(JointAxesMask::empty())
+      //let joint1 = GenericJointBuilder::new(JointAxesMask::empty())
         /*.limits(JointAxis::X, [-3.0, 3.0])
         .limits(JointAxis::Y, [0.0, 3.0])
         .limits(JointAxis::Z, [0.0, 3.0])*/
-        .coupled_axes(JointAxesMask::X | JointAxesMask::Y | JointAxesMask::Z);
-
+        //.coupled_axes(JointAxesMask::X | JointAxesMask::Y | JointAxesMask::Z);
         //.local_anchor1(point![0.0, 0.0, -3.0])
         //.local_anchor2(point![0.0, 0.0, 1.0]);
       world.impulse_joint_set.insert(ball_body_handle, prev, joint, false);
@@ -77,21 +76,23 @@ impl Dancer{
     self.shader = Some(crate::f::shader::create_shader_vf( &display, "test" ));
     let radius = 0.2;
 
-    let first_pos = nalgebra::Vector3::new(0.0,0.0,0.0);
-    let first = Some(self.create_ball( first_pos, radius, None, first_pos, world, false ));
+    let first_pos = nalgebra::Vector3::new(0.0,2.2,0.0);
+    let first = Some(self.create_ball( first_pos, 0.2, None, first_pos, world, false ));
     world.collider_set.iter_mut().nth(0).unwrap().1.set_mass(10000.0);
     self.balls.push( first.unwrap() );
 
-    for m in 1..10 {
+    let x_count = 20;
+    let y_count = 10;
+    for m in 0..x_count {
       //let mut previous: Option<RigidBodyHandle> = None;
       //let mut previous_pos: Option<nalgebra::Vector3<f32>> = None;
       let mut previous: Option<RigidBodyHandle> = first;
       let mut previous_pos: Option<nalgebra::Vector3<f32>> = Some(first_pos);
-      for n in 1..10 {
+      for n in 0..y_count {
         let dist = 5.0 + n as f64 / 1.0;
         let (x, z) = (
-          (m as f64 / 9.0 * std::f64::consts::PI * 2.0).sin() * dist,
-          (m as f64 / 9.0 * std::f64::consts::PI * 2.0).cos() * dist
+          (m as f64 / x_count as f64 * std::f64::consts::PI * 2.0).sin() * dist,
+          (m as f64 / x_count as f64 * std::f64::consts::PI * 2.0).cos() * dist
         );
         let pos = nalgebra::Vector3::new( x as f32, n as f32 * -2.5 + 2.2, z as f32 );
         if previous_pos == None {
@@ -104,17 +105,20 @@ impl Dancer{
       }
     }
 
-    for m in 0..9 {
-      for n in 0..8 {
-        println!("{:?}", self.balls[m*9+n+1]);
-        let b = self.balls[m*9+n+1];
-        let b2 = self.balls[((m+1)%9)*9+n+1];
+    for m in 0..(x_count-1) {
+      for n in 0..(y_count-1) {
+        //println!("{:?}", self.balls[m*y_count+n+1]);
+        let b = self.balls[m*y_count+n+1];
+        let b2 = self.balls[((m+1)%x_count)*y_count+n+1];
         let tr = world.rigid_body_set.get(b).unwrap().translation() - world.rigid_body_set.get(b2).unwrap().translation();
         let joint = SphericalJointBuilder::new()
           .local_anchor2( point![ tr.x, tr.y, tr.z ] );
         world.impulse_joint_set.insert(b, b2, joint, true);
       }
     }
+    
+    let middle = Some(self.create_ball( nalgebra::Vector3::new(0.0,-5.0,0.0), 2.0, None, first_pos, world, false ));
+    self.balls.push( middle.unwrap() );
 
     self.obj_sphere = Some(crate::f::fobject::FObject::load_gltf( "data/sphere.gltf", &display ));
 
@@ -158,19 +162,31 @@ impl Dancer{
       //println!("EFKFE");
       if let Some(shader) = &self.shader {
         self.balls.iter().for_each( |b| {
-          let ball = &world.rigid_body_set[*b];
+          if world.rigid_body_set.contains(*b) {
+            let ball = &world.rigid_body_set[*b];
 
-          let pos = ball.translation();
-          for mesh in &obj.meshes {
-            let m4: Matrix4<f32> = mesh.matrix * obj.matrix;
-            let model_matrix: [[f32;4];4] = (m4 * nalgebra::Matrix4::<f32>::new_translation(pos).append_scaling(0.4)).into();
-            target.draw(&mesh.vbuffer, &mesh.ibuffer, &shader,
-              &uniform! { model: model_matrix, view: view_mat, perspective: perspective_mat,
-                      u_light: light,
-                      diffuse_tex: &obj.textures[obj.materials[mesh.material.unwrap()].diffuse_texture.unwrap()]//,
-                      //normal_tex: &obj.textures[obj.materials[mesh.material.unwrap()].normal_texture.unwrap()]
-              },
-              &draw_params);
+            //println!(" ball;: {:?} ", ball);
+
+            if ball.colliders().len() > 0 {
+              let radius = world.collider_set.get(ball.colliders()[0]).unwrap().shape().as_ball().unwrap().radius;
+              //println!("{:?}", radius);
+              let pos = ball.translation();
+              for mesh in &obj.meshes {
+                // center object
+                let v1 = pos + nalgebra::Vector3::new( 0.0, -1.0, 0.0 );
+                let scale = nalgebra::Matrix4::<f32>::new_scaling(radius*2.0);
+                let position = nalgebra::Matrix4::<f32>::new_translation(&v1);
+                let m4: Matrix4<f32> = mesh.matrix * obj.matrix * position.append_scaling(0.4) * scale;
+                let model_matrix: [[f32;4];4] = m4.into();
+                target.draw(&mesh.vbuffer, &mesh.ibuffer, &shader,
+                  &uniform! { model: model_matrix, view: view_mat, perspective: perspective_mat,
+                          u_light: light,
+                          diffuse_tex: &obj.textures[obj.materials[mesh.material.unwrap()].diffuse_texture.unwrap()]//,
+                          //normal_tex: &obj.textures[obj.materials[mesh.material.unwrap()].normal_texture.unwrap()]
+                  },
+                  &draw_params);
+              }
+            }
           }
 
         } );
